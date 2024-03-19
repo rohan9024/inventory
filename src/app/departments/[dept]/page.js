@@ -138,13 +138,8 @@ function DepartmentProps({ params }) {
             }
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.7 }} className='mx-10 md:mx-28 mt-10'>
                 <div className={`${poppins.className} flex justify-start items-center space-x-2 pb-10 `}>
-
                     <img src='/back.png' alt="back" className='w-5 h-5 ' />
-
-
                     <Link href="/departments" className='text-lg text-black cursor-pointer hover:ease-in transition duration-150 hover:text-gray-400'>Back</Link>
-
-
                 </div>
                 <div className={`${poppins.className} flex justify-between items-center`}>
                     <h1 className='text-2xl lg:text-4xl font-semibold tracking-wide '>{departmentDictionary[params.dept]}</h1>

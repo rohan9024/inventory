@@ -8,7 +8,7 @@ const poppins = Poppins({
 });
 
 
-function Navbar() {
+function Homepage() {
 
     return (
         <>
@@ -24,10 +24,24 @@ function Navbar() {
             </div>
             <div className='bg-gray-300 h-[1px] ' />
 
+            <div class="flex justify-center items-center">
+                <h1 class={`${poppins.className} text-3xl font-bold `}>Select one to proceed</h1>
+                <div className='flex justify-center items-center space-x-10'>
+                    <div className='border border-gray-900 shadow-lg px-10 py-2 '>
+                        <h1 class={`${poppins.className} text-lg font-medium cursor-pointer rounded-2xl`}>Admin Login</h1>
+                    </div>
+                    <div className='border border-gray-900 shadow-lg '>
+                        <h1 class={`${poppins.className} text-lg font-medium cursor-pointer  rounded-2xl
+                        `}>Lab Login</h1>
+                    </div>
+                </div>
+
+            </div>
+
 
         </>
 
     )
 }
 
-export default Navbar
+export default Homepage
