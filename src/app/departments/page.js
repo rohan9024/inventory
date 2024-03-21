@@ -42,7 +42,7 @@ function page() {
                     <img src='/back.png' alt="back" className='w-5 h-5 ' />
 
 
-                    <Link href="/" className='text-lg text-black cursor-pointer hover:ease-in transition duration-150 hover:text-gray-400'>Back</Link>
+                    <Link href="/admin-panel" className='text-lg text-black cursor-pointer hover:ease-in transition duration-150 hover:text-gray-400'>Back</Link>
 
 
                 </div>
