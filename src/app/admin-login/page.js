@@ -4,17 +4,21 @@ import React, { useContext, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from '../../../components/Navbar';
-import { Inter, Raleway } from 'next/font/google';
+import { Inter, Poppins, Raleway } from 'next/font/google';
 import { useRouter } from 'next/navigation';
 import { AuthContext } from "../../../contexts/AuthContext"
-
+import Link from "next/link"
 
 const raleway = Raleway({
     weight: ['400', '700'],
     subsets: ['latin'],
 });
-
 const inter = Inter({
+    weight: ['400', '700'],
+    subsets: ['latin'],
+});
+
+const poppins = Poppins({
     weight: ['400', '700'],
     subsets: ['latin'],
 });
@@ -123,7 +127,6 @@ function page() {
 
     return (
         <>
-            <Navbar />
             <ToastContainer
                 position="top-right"
                 autoClose={2000}
@@ -136,6 +139,10 @@ function page() {
                 pauseOnHover
                 theme="light"
             />
+            <div class="w-screen py-6 px-10 flex justify-between items-center">
+                <Link href="/" class={`${poppins.className} text-lg font-medium cursor-pointer`}>SIES Graduate School of Technology</Link>
+            </div>
+            <div className='bg-gray-300 h-[1px] ' />
             <div>
                 <div className='flex flex-col justify-center items-center w-screen mt-44 space-y-5'>
                     <h1 className={`${raleway.className} text-4xl font-bold mb-10`}>Admin Login </h1>
