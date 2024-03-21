@@ -14,26 +14,19 @@ function Homepage() {
         <>
             <div class="w-screen py-6 px-10 flex justify-between items-center">
                 <Link href="/" class={`${poppins.className} text-lg font-medium cursor-pointer`}>SIES Graduate School of Technology</Link>
-
-                <div class="flex justify-center items-center space-x-10">
-                    <Link href="/" class={`${poppins.className} text-sm font-medium cursor-pointer hover:ease-in transition duration-150 hover:text-gray-400`}>Inventory</Link>
-                    <Link href="/departments" class={`${poppins.className} text-sm font-medium cursor-pointer hover:ease-in transition duration-150 hover:text-gray-400`}>Departments</Link>
-                    <Link href="/profile" class={`${poppins.className} text-sm font-medium cursor-pointer hover:ease-in transition duration-150 hover:text-gray-400`}>Profile</Link>
-                </div>
-
             </div>
             <div className='bg-gray-300 h-[1px] ' />
 
-            <div class="flex justify-center items-center">
+            <div class="flex flex-col justify-center items-center mt-36 space-y-10 ">
                 <h1 class={`${poppins.className} text-3xl font-bold `}>Select one to proceed</h1>
                 <div className='flex justify-center items-center space-x-10'>
-                    <div className='border border-gray-900 shadow-lg px-10 py-2 '>
+                    <Link href="/admin-login" className='border border-gray-900 shadow-lg px-10 py-2  cursor-pointer hover:ease-in transition duration-150 hover:bg-gray-400'>
                         <h1 class={`${poppins.className} text-lg font-medium cursor-pointer rounded-2xl`}>Admin Login</h1>
-                    </div>
-                    <div className='border border-gray-900 shadow-lg '>
+                    </Link>
+                    <Link href="/lab-login" className='border border-gray-900 shadow-lg px-10 py-2 cursor-pointer hover:ease-in transition duration-150 hover:bg-gray-400'>
                         <h1 class={`${poppins.className} text-lg font-medium cursor-pointer  rounded-2xl
                         `}>Lab Login</h1>
-                    </div>
+                    </Link>
                 </div>
 
             </div>

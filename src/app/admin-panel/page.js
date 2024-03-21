@@ -1,7 +1,9 @@
+"use client"
+
 import React from 'react'
-import Navbar from "../../components/Navbar";
-import Middle from "../../components/Middle";
-import { InventoryContext } from '../../contexts/InventoryProvider'
+import Navbar from "../../../components/Navbar";
+import Middle from "../../../components/Middle";
+import { InventoryContext } from '../../../contexts/InventoryProvider'
 
 function page() {
     const temp = [
@@ -17,7 +19,6 @@ function page() {
       ]
   return (
     <InventoryContext.Provider value={{ temp }}>
-      
       <div>
         <Navbar />
         <Middle />
