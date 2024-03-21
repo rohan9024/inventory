@@ -27,6 +27,17 @@ function Middle() {
     setDepartmentName("");
   }
 
+  const items = [
+    { name: "Chalk", quantity: 100 },
+    { name: "Duster", quantity: 200 },
+    { name: "Markers", quantity: 1000 },
+    { name: "Whiteboard", quantity: 200 },
+    { name: "Papers", quantity: 3546 },
+    { name: "Ink", quantity: 34 },
+    { name: "Others", quantity: 96 },
+    { name: "Total", quantity: 4596 }
+  ];
+
   return (
     <>
       {
@@ -137,39 +148,12 @@ function Middle() {
 
         {/* List of boxes */}
         <div class="grid grid-cols-4 gap-10 py-14 ">
-          <div class="flex flex-col justify-center border border-gray-300 shadow-lg min-w-[250px] h-[150px] px-5 rounded-lg cursor-pointer hover:ease-in transition duration-150 hover:bg-gray-100">
-            <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>Chalk</h1>
-            <h1 class={`${poppins.className} text-md font-medium  cursor-pointer text-gray-400`}>100</h1>
-          </div>
-          <div class="flex flex-col justify-center border border-gray-300 shadow-lg min-w-[250px] h-[150px] px-5 rounded-lg cursor-pointer hover:ease-in transition duration-150 hover:bg-gray-100">
-            <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>Duster</h1>
-            <h1 class={`${poppins.className} text-md font-medium  cursor-pointer text-gray-400`}>200</h1>
-          </div>
-          <div class="flex flex-col justify-center border border-gray-300 shadow-lg min-w-[250px] h-[150px] px-5 rounded-lg cursor-pointer hover:ease-in transition duration-150 hover:bg-gray-100">
-            <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>Markers</h1>
-            <h1 class={`${poppins.className} text-md font-medium  cursor-pointer text-gray-400`}>1000</h1>
-          </div>
-          <div class="flex flex-col justify-center border border-gray-300 shadow-lg min-w-[250px] h-[150px] px-5 rounded-lg cursor-pointer hover:ease-in transition duration-150 hover:bg-gray-100">
-            <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>Whiteboard</h1>
-            <h1 class={`${poppins.className} text-md font-medium  cursor-pointer text-gray-400`}>200</h1>
-          </div>
-          <div class="flex flex-col justify-center border border-gray-300 shadow-lg min-w-[250px] h-[150px] px-5 rounded-lg cursor-pointer hover:ease-in transition duration-150 hover:bg-gray-100">
-            <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>Papers</h1>
-            <h1 class={`${poppins.className} text-md font-medium  cursor-pointer text-gray-400`}>3546</h1>
-          </div>
-          <div class="flex flex-col justify-center border border-gray-300 shadow-lg min-w-[250px] h-[150px] px-5 rounded-lg cursor-pointer hover:ease-in transition duration-150 hover:bg-gray-100">
-            <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>Ink</h1>
-            <h1 class={`${poppins.className} text-md font-medium  cursor-pointer text-gray-400`}>34</h1>
-          </div>
-          <div class="flex flex-col justify-center border border-gray-300 shadow-lg min-w-[250px] h-[150px] px-5 rounded-lg cursor-pointer hover:ease-in transition duration-150 hover:bg-gray-100">
-            <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>Others</h1>
-            <h1 class={`${poppins.className} text-md font-medium  cursor-pointer text-gray-400`}>96</h1>
-          </div>
-          <div class="flex flex-col justify-center border border-gray-300 shadow-lg min-w-[250px] h-[150px] px-5 rounded-lg cursor-pointer hover:ease-in transition duration-150 hover:bg-gray-100">
-            <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>Total</h1>
-            <h1 class={`${poppins.className} text-md font-medium  cursor-pointer text-gray-400`}>4596</h1>
-
-          </div>
+          {items.map((item) => (
+            <div class="flex flex-col justify-center border border-gray-300 shadow-lg min-w-[250px] h-[150px] px-5 rounded-lg cursor-pointer hover:ease-in transition duration-150 hover:bg-gray-100">
+              <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>{item.name}</h1>
+              <h1 class={`${poppins.className} text-md font-medium  cursor-pointer text-gray-400`}>{item.quantity}</h1>
+            </div>
+          ))}
         </div>
 
 
