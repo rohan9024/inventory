@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link';
 import Image from "next/image"
+import { getAllocatedInventoryService } from '../../../../services/DepartmentService';
 
 const poppins = Poppins({
     weight: ['100', '400', '500', '600', '700', '800'],
@@ -39,19 +40,17 @@ function DepartmentProps({ params }) {
         'IOT': 'IOT',
     };
 
-    const temp = [
-        {
-            stockName: "Pen",
-            totalStockLeft: 10,
-            lastUpdated: "20/11/2024"
-        },
-        {
-            stockName: "Markers",
-            totalStockLeft: 110,
-            lastUpdated: "20/07/2023"
-        },
+    const [inventories , setInventories] = useState([])
+    useEffect(() => {
+      getAllocatedInventoryService(1).then((response) =>{
+        setInventories(response.data);
+      }).catch(error => {
+        console.error(error);
+      }
+      )
+    } , [])
 
-    ]
+    const temp = inventories;
 
     let count = 1;
 

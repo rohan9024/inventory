@@ -7,6 +7,7 @@ import Navbar from '../../../components/Navbar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { listDepartments } from '../../../services/DepartmentService';
 
 const raleway = Raleway({
     weight: ['400', '700'],
@@ -23,8 +24,17 @@ function page() {
     const router = useRouter();
     const [fetch, setFetch] = useState(false)
     const [selectedTab, setSelectedTab] = useState(null)
+    const [fetchDept, setFetchDept] = useState([])
+    useEffect(() => {
+        listDepartments().then((response) => {
+            setFetchDept(response.data);
+        }).catch(error => {
+            console.error(error);
+        }
+        )
+    }, [])
 
-    const departmentList = ['PPT', 'CE', 'IT', 'ECS', 'EXTC', 'AIDS', 'AIML', 'MECH', 'IOT', 'PG', 'FE'];
+    const departmentList = fetchDept;
 
 
     return (
