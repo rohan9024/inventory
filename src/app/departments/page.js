@@ -6,7 +6,6 @@ import { Manrope, Poppins, Raleway } from 'next/font/google';
 import Navbar from '../../../components/Navbar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { listDepartments } from '../../../services/DepartmentService';
 
 const raleway = Raleway({
@@ -67,7 +66,7 @@ function page() {
                             key={department}
                             href={{
                                 pathname: `/departments/${department}`,
-                                query: { dept: department },
+                                query: { deptId: department.deptId, departmentName: department.departmentName },
                             }}
                             className="px-12 py-4 lg:px-0 lg:py-0 flex justify-center items-center lg:w-[200px] lg:h-[200px] shadow-2xl rounded-xl bg-[#60a5fa] hover:cursor-pointer transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300"
                         >

@@ -21,7 +21,13 @@ function DepartmentProps({ params }) {
     const [tabTimetable, setTabTimetable] = useState([]);
     const [fetch, setFetch] = useState(true);
     const [allocationModal, setAllocationModal] = useState(false);
-    const [item, setItem] = useState();
+
+    // hithe tujhe items ghaal
+    const itemList = [
+        "Marker",
+        "Chalk",
+    ]
+    const [item, setItem] = useState(itemList[0]);
     const [quantity, setQuantity] = useState(1);
     const searchParams = useSearchParams()
 
@@ -40,40 +46,23 @@ function DepartmentProps({ params }) {
         'IOT': 'IOT',
     };
 
-    const [inventories , setInventories] = useState([])
+    const [inventories, setInventories] = useState([])
     useEffect(() => {
-      getAllocatedInventoryService(1).then((response) =>{
-        setInventories(response.data);
-      }).catch(error => {
-        console.error(error);
-      }
-      )
-    } , [])
+        getAllocatedInventoryService(1).then((response) => {
+            setInventories(response.data);
+        }).catch(error => {
+            console.error(error);
+        }
+        )
+    }, [])
 
     const temp = inventories;
 
     let count = 1;
+    const handleItemDropdown = (event) => {
+        setItem(event.target.value);
+    };
 
-    // Dynamic fetching wrt to tabs 
-    //   useEffect(() => {
-    //     if (fetch && tabName) {
-    //       const fetchTimetableObj = async () => {
-    //         const querySnapshot = await getDocs(collection(db, "timetableTabs", "YVDvOwTLlkCDDuxblOBg", tabName));
-    //         const fetchedTimetable = [];
-
-    //         querySnapshot.forEach((doc) => {
-    //           fetchedTimetable.push({ id: doc.id, link: doc.data().link, linkName: doc.data().linkName, dept: doc.data().dept });
-    //           console.log(doc.data())
-
-    //         });
-
-    //         setTabTimetable(fetchedTimetable);
-    //         setFetch(true);
-    //       }
-    //       fetchTimetableObj();
-
-    //     }
-    //   }, [fetch, router.pathname]);
 
     async function itemAllocation() {
         console.log(item, quantity)
@@ -103,15 +92,19 @@ function DepartmentProps({ params }) {
                                 </div>
                                 <div className='flex flex-col space-y-5 mb-20  mx-12 my-5'>
 
-                                    <h1 className={`${poppins.className} text-lg font-medium`}>Enter Item</h1>
+                                    <h1 className={`${poppins.className} text-lg font-medium`}>Select Item</h1>
 
-                                    <input
-                                        onChange={(e) => setItem(e.target.value)}
+                                    <select
                                         value={item}
-                                        type="text"
-                                        placeholder="Marker"
-                                        className="placeholder:text-gray-500  px-5 py-2 outline-none border border-gray-800 w-96"
-                                    />
+                                        onChange={handleItemDropdown}
+                                        className="block w-96 py-2 px-5 leading-tight border border-gray-700 focus:outline-none cursor-pointer"
+                                    >
+                                        {itemList.map((item, index) => (
+                                            <option key={index} value={item}>
+                                                {item}
+                                            </option>
+                                        ))}
+                                    </select>
                                     <h1 className={`${poppins.className} text-lg font-medium`}>Enter Quantity</h1>
 
                                     <input
@@ -142,6 +135,8 @@ function DepartmentProps({ params }) {
                 </div>
                 <div className={`${poppins.className} flex justify-between items-center`}>
                     <h1 className='text-2xl lg:text-4xl font-semibold tracking-wide '>{departmentDictionary[params.dept]}</h1>
+                    <h1 className='text-2xl lg:text-4xl font-semibold tracking-wide '>{params.deptId}</h1>
+                    <h1 className='text-2xl lg:text-4xl font-semibold tracking-wide '>{params.departmentName}</h1>
 
                     <div class="flex justify-center items-center space-x-5">
                         <div className='flex justify-center items-center px-5 py-2 bg-black rounded-lg text-white cursor-pointer' onClick={() => setAllocationModal(true)}>

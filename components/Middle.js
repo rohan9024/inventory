@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Poppins } from 'next/font/google';
 import { addInventory, listInventories } from '../services/InventoryService';
 
@@ -19,7 +19,6 @@ function Middle() {
   const [departmentModal, setDepartmentModal] = useState(false)
   const [departmentName, setDepartmentName] = useState("")
   const createInventory = { inventoryName, quantity };
-
 
   const [inventories, setInventories] = useState([])
   useEffect(() => {
