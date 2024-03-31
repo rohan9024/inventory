@@ -58,20 +58,20 @@ function page() {
                 <div className={`${poppins.className} text-start mt-10`}>
                     <h1 className="text-2xl lg:text-4xl font-semibold tracking-wide ">
                         Select any one Department
-                    </h1>
+                    </h1> 
                 </div>
                 <div className="mt-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
                     {departmentList.map((department) => (
                         <Link
                             key={department}
                             href={{
-                                pathname: `/departments/${department}`,
+                                pathname: `/departments/${department.departmentName}`,
                                 query: { deptId: department.deptId, departmentName: department.departmentName },
                             }}
                             className="px-12 py-4 lg:px-0 lg:py-0 flex justify-center items-center lg:w-[200px] lg:h-[200px] shadow-2xl rounded-xl bg-[#60a5fa] hover:cursor-pointer transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300"
                         >
                             <h1 className={`${poppins.className} text-center lg:text-3xl text-2xl`}>
-                                {department}
+                                {department.departmentName}
                             </h1>
                         </Link>
                     )
