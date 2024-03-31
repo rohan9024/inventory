@@ -10,3 +10,7 @@ const REST_API_BASE_URL = "http://localhost:8090/api/inventory";
  export const updateInventory = (inventoryId , inventory) => axios.put(REST_API_BASE_URL +"/"+inventoryId , inventory)
  
  export const deleteInventory = async(inventoryId)=>await axios.delete(REST_API_BASE_URL + "/" + inventoryId);
+
+
+//used this api in dropdown in dept page /create new allocation made
+ export const getAllocatedNotInventoryService = async(departmentName)=>await axios.get(REST_API_BASE_URL + "/not/" + departmentName);

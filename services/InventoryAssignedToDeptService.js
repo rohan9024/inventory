@@ -5,10 +5,6 @@ const REST_API_BASE_URL = "http://localhost:8090/api/departmentallocatedinventor
 
 
  export const getAllocatedInventoryService = async(deptId)=>await axios.get(REST_API_BASE_URL + "/" +deptId);
- 
- // Not working 
- export const getAllocatedNotInventoryService = async(deptId)=>await axios.get(REST_API_BASE_URL + "/not/" + deptId);
- 
 
  //after using create also called update in inventory quantity 
  //from InventoryService.js to subtract from original quantity
