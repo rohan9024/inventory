@@ -84,43 +84,37 @@ function page() {
 
 
 
+    const signIn = async () => {
+        e.preventDefault();
+        if (username && password) {
+            try {
+                const response = await fetch('http://localhost:8090/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
 
-    //   const signIn = async (e) => {
-    //     e.preventDefault();
+                if (!response.ok) {
+                    throw new alert('Sign in failed');
+                }
+                notifySuccess();
+                setAdmin(true)
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem("isAdmin", "true") || '';
+                }
 
-    //     if (username && password) {
-    //       const q = query(
-    //         collection(db, "admin"),
-    //         where("username", "==", username),
-    //         where("password", "==", password)
-    //       );
-
-    //       const querySnapshot = await getDocs(q);
-
-    //       if (querySnapshot.empty) {
-    //         notifyError();
-    //       } else {
-    //         notifySuccess();
-    //         setAdmin(true)
-    //         if (typeof window !== 'undefined') {
-    //           localStorage.setItem("isAdmin", "true") || '';
-    //         }
-
-    //         router.push("/admin-page");
-    //       }
-    //     }
-    //     else if (!username && password) {
-    //       notifyMissingUsername()
-    //     }
-    //     else if (username && !password) {
-    //       notifyMissingPassword()
-    //     }
-    //     else {
-    //       notifyMissingCredentials()
-    //     }
-    //   };
-
-
+                router.push("/admin-panel");
+                
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+        else{
+            alert("Missing Credentials");
+        }
+    };
 
 
 

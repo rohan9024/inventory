@@ -7,9 +7,8 @@ import Navbar from '../../../../components/Navbar';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link';
-import Image from "next/image"
-import { createAllocatedInventoryService, getAllocatedInventoryService ,getAllocatedNotInventoryService } from '../../../../services/DepartmentService';
-import {  updateInventoryService } from '../../../../services/InventoryService';
+import { createAllocatedInventoryService, getAllocatedInventoryService, getAllocatedNotInventoryService } from '../../../../services/DepartmentService';
+import { updateInventoryService } from '../../../../services/InventoryService';
 
 const poppins = Poppins({
     weight: ['100', '400', '500', '600', '700', '800'],
@@ -24,8 +23,8 @@ function DepartmentProps({ params }) {
     const [allocationModal, setAllocationModal] = useState(false);
     const [inventoryName, setInventoryName] = useState("")
     //const [deptId , setDeptId] = useState("")
-     const [allocatedQuantity, setAllocatedQuantity] = useState("")
-   
+    const [allocatedQuantity, setAllocatedQuantity] = useState("")
+
     // hithe tujhe items ghaal
     const itemList = [
         "Marker",
@@ -51,19 +50,20 @@ function DepartmentProps({ params }) {
     };
 
 
+
     const [inventoriesList, setInventoriesList] = useState([])
     useEffect(() => {
-        getAllocatedNotInventoryService().then((response) => {
-        setInventoriesList(response.data);
-      }).catch(error => {
-        console.error(error);
-      }
-      )
+        getAllocatedNotInventoryService(params.dept).then((response) => {
+            setInventoriesList(response.data);
+        }).catch(error => {
+            console.error(error);
+        }
+        )
     }, [])
 
     const [inventories, setInventories] = useState([])
     useEffect(() => {
-        getAllocatedInventoryService(1).then((response) => {
+        getInventoryewfewnjf(params.dept).then((response) => {
             setInventories(response.data);
         }).catch(error => {
             console.error(error);
@@ -81,23 +81,23 @@ function DepartmentProps({ params }) {
         setDropdownQuantity(event.target.quantity);
     };
 
-    const createAllocatedInventory = {deptId ,inventoryId , quantity };
+    const createAllocatedInventory = { deptId, inventoryId, quantity };
     async function itemAllocation() {
         setInventoryName("");
         setQuantity("");
-        if(quantity > dropDownQuantity){
+        if (quantity > dropDownQuantity) {
             showError("Quantity Exceeded");
-        }else{
-           let quan = dropDownQuantity-quantity;
-           createAllocatedInventoryService(createAllocatedInventory).then(response => {
-           console.log(response.data)
-           });
-           const updateInventory = {inventoryId ,inventoryName, quantity};
-           updateInventoryService(inventoryId,updateInventory).then(response => {
-            console.log(response.data)
+        } else {
+            let quan = dropDownQuantity - quantity;
+            createAllocatedInventoryService(createAllocatedInventory).then(response => {
+                console.log(response.data)
             });
-       
-      }
+            const updateInventory = { inventoryId, inventoryName, quantity };
+            updateInventoryService(inventoryId, updateInventory).then(response => {
+                console.log(response.data)
+            });
+
+        }
     }
 
 
@@ -108,22 +108,22 @@ function DepartmentProps({ params }) {
     function showError(error) {
         // Create a new div element
         var errorDiv = document.createElement('div');
-        
+
         // Set the error message content
         errorDiv.textContent = error;
-  
+
         // Style the error message
         errorDiv.style.color = 'red';
         errorDiv.style.fontWeight = 'bold';
-        
+
         // Append the error message to the body or any other desired container
         document.body.appendChild(errorDiv);
-        
+
         // Optionally, remove the error message after a certain time
-        setTimeout(function() {
-          document.body.removeChild(errorDiv);
+        setTimeout(function () {
+            document.body.removeChild(errorDiv);
         }, 3000); // Remove after 3 seconds (adjust as needed)
-      }
+    }
 
     return (
         <>
@@ -156,8 +156,8 @@ function DepartmentProps({ params }) {
                                         className="block w-96 py-2 px-5 leading-tight border border-gray-700 focus:outline-none cursor-pointer"
                                     >
                                         {inventoriesList.map((inventory) => (
-                                            <option key={inventory.inventoryId} value={inventory.inventoryName} quantity = {inventory.quantity}>
-                                                {inventory.inventoryName + "   "+ inventory.quantity}
+                                            <option key={inventory.inventoryId} value={inventory.inventoryName} quantity={inventory.quantity}>
+                                                {inventory.inventoryName + "   " + inventory.quantity}
                                             </option>
                                         ))}
                                     </select>
@@ -190,9 +190,8 @@ function DepartmentProps({ params }) {
                     <Link href="/departments" className='text-lg text-black cursor-pointer hover:ease-in transition duration-150 hover:text-gray-400'>Back</Link>
                 </div>
                 <div className={`${poppins.className} flex justify-between items-center`}>
-                    <h1 className='text-2xl lg:text-4xl font-semibold tracking-wide '>{departmentDictionary[params.dept]}</h1>
-                    <h1 className='text-2xl lg:text-4xl font-semibold tracking-wide '>{params.deptId}</h1>
-                    <h1 className='text-2xl lg:text-4xl font-semibold tracking-wide '>{params.departmentName}</h1>
+                    <h1 className='text-2xl lg:text-4xl font-semibold tracking-wide '>{params.dept}</h1>
+
 
                     <div class="flex justify-center items-center space-x-5">
                         <div className='flex justify-center items-center px-5 py-2 bg-black rounded-lg text-white cursor-pointer' onClick={() => setAllocationModal(true)}>
@@ -221,7 +220,7 @@ function DepartmentProps({ params }) {
                                 </th>
                             </tr>
                         </thead>
-                        {
+                        {/* {
                             temp.map((stock) => (
 
                                 <tbody>
@@ -254,7 +253,7 @@ function DepartmentProps({ params }) {
                                     </tr>
                                 </tbody>
                             ))
-                        }
+                        } */}
                     </table>
                 </div>
 
