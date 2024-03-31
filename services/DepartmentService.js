@@ -4,5 +4,3 @@ const REST_API_BASE_URL = "http://localhost:8090/api/department";
 
  export const listDepartments = async () =>await axios.get(REST_API_BASE_URL);  
 
- export const getAllocatedInventoryService = async(deptId)=>await axios.get("http://localhost:8090/api/departmentallocatedinventory/" + deptId);
- 

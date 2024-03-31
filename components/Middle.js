@@ -40,7 +40,7 @@ function Middle() {
       console.log(response.data);
       //navigator('/admin-panel');
     });
-    //  console.log(createInventory);
+   //  console.log(createInventory);
   }
 
   function createDepartment() {
@@ -50,11 +50,11 @@ function Middle() {
   }
 
   const items = inventories;
-  function createItem() {
-    alert(itemName)
-    setItemModal(false);
-    setItemName("");
-  }
+  // function createItem() {
+  //   alert(itemName)
+  //   setItemModal(false);
+  //   setItemName("");
+  // }
 
   function createDepartment() {
     alert(departmentName)
@@ -96,12 +96,22 @@ function Middle() {
                   <h1 className={`${poppins.className} text-lg font-medium`}>Enter Item Name</h1>
 
                   <input
-                    onChange={(e) => setItemName(e.target.value)}
-                    value={itemName}
+                    onChange={(e) => setInventoryName(e.target.value)}
+                    value={inventoryName}
                     type="text"
                     placeholder="Marker"
                     className="placeholder:text-gray-500  px-5 py-2 outline-none border border-gray-800 w-96"
                   />
+
+<h1 className={`${poppins.className} text-lg font-medium`}>Enter quantity </h1>
+
+<input
+  onChange={(e) => setQuantity(e.target.value)}
+  value={quantity}
+  type="text"
+  placeholder="Quantity"
+  className="placeholder:text-gray-500  px-5 py-2 outline-none border border-gray-800 w-96"
+/>
 
                   <div type="submit" onClick={() => createItem()} class=" cursor-pointer w-96 relative inline-flex items-center px-12 py-2 overflow-hidden text-lg font-medium text-black border-2 border-black rounded-full hover:text-white group hover:bg-gray-600">
                     <span class="absolute left-0 block w-full h-0 transition-all bg-black opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-400 ease"></span>
@@ -223,7 +233,7 @@ function Middle() {
         <div class="grid grid-cols-4 gap-10 py-14 ">
           {items.map((item) => (
             <div class="flex flex-col justify-center  shadow-lg min-w-[250px] h-[150px] px-5 rounded-lg ">
-              <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>{item.name}</h1>
+              <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>{item.inventoryName}</h1>
               <h1 class={`${poppins.className} text-md font-medium  cursor-pointer text-gray-400`}>{item.quantity}</h1>
               <div class="w-full flex justify-end mt-10 cursor-pointer ">
                 <img src="/edit.png" alt="edit" className='w-7 h-7' />

@@ -8,7 +8,8 @@ import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link';
 import Image from "next/image"
-import { getAllocatedInventoryService } from '../../../../services/DepartmentService';
+import { createAllocatedInventoryService, getAllocatedInventoryService ,getAllocatedNotInventoryService } from '../../../../services/DepartmentService';
+import {  updateInventoryService } from '../../../../services/InventoryService';
 
 const poppins = Poppins({
     weight: ['100', '400', '500', '600', '700', '800'],
@@ -21,7 +22,10 @@ function DepartmentProps({ params }) {
     const [tabTimetable, setTabTimetable] = useState([]);
     const [fetch, setFetch] = useState(true);
     const [allocationModal, setAllocationModal] = useState(false);
-
+    const [inventoryName, setInventoryName] = useState("")
+    //const [deptId , setDeptId] = useState("")
+     const [allocatedQuantity, setAllocatedQuantity] = useState("")
+   
     // hithe tujhe items ghaal
     const itemList = [
         "Marker",
@@ -46,6 +50,17 @@ function DepartmentProps({ params }) {
         'IOT': 'IOT',
     };
 
+
+    const [inventoriesList, setInventoriesList] = useState([])
+    useEffect(() => {
+        getAllocatedNotInventoryService().then((response) => {
+        setInventoriesList(response.data);
+      }).catch(error => {
+        console.error(error);
+      }
+      )
+    }, [])
+
     const [inventories, setInventories] = useState([])
     useEffect(() => {
         getAllocatedInventoryService(1).then((response) => {
@@ -57,18 +72,58 @@ function DepartmentProps({ params }) {
     }, [])
 
     const temp = inventories;
-
+    const deptId = 1;
+    const inventoryId = 3;
+    const [dropDownQuantity, setDropdownQuantity] = useState([])
     let count = 1;
     const handleItemDropdown = (event) => {
-        setItem(event.target.value);
+        setInventoryName(event.target.value);
+        setDropdownQuantity(event.target.quantity);
     };
 
-
+    const createAllocatedInventory = {deptId ,inventoryId , quantity };
     async function itemAllocation() {
-        console.log(item, quantity)
-        setItem(null)
-        setQuantity(quantity)
+        setInventoryName("");
+        setQuantity("");
+        if(quantity > dropDownQuantity){
+            showError("Quantity Exceeded");
+        }else{
+           let quan = dropDownQuantity-quantity;
+           createAllocatedInventoryService(createAllocatedInventory).then(response => {
+           console.log(response.data)
+           });
+           const updateInventory = {inventoryId ,inventoryName, quantity};
+           updateInventoryService(inventoryId,updateInventory).then(response => {
+            console.log(response.data)
+            });
+       
+      }
     }
+
+
+
+
+
+
+    function showError(error) {
+        // Create a new div element
+        var errorDiv = document.createElement('div');
+        
+        // Set the error message content
+        errorDiv.textContent = error;
+  
+        // Style the error message
+        errorDiv.style.color = 'red';
+        errorDiv.style.fontWeight = 'bold';
+        
+        // Append the error message to the body or any other desired container
+        document.body.appendChild(errorDiv);
+        
+        // Optionally, remove the error message after a certain time
+        setTimeout(function() {
+          document.body.removeChild(errorDiv);
+        }, 3000); // Remove after 3 seconds (adjust as needed)
+      }
 
     return (
         <>
@@ -95,13 +150,14 @@ function DepartmentProps({ params }) {
                                     <h1 className={`${poppins.className} text-lg font-medium`}>Select Item</h1>
 
                                     <select
-                                        value={item}
+                                        value={inventoryName}
+
                                         onChange={handleItemDropdown}
                                         className="block w-96 py-2 px-5 leading-tight border border-gray-700 focus:outline-none cursor-pointer"
                                     >
-                                        {itemList.map((item, index) => (
-                                            <option key={index} value={item}>
-                                                {item}
+                                        {inventoriesList.map((inventory) => (
+                                            <option key={inventory.inventoryId} value={inventory.inventoryName} quantity = {inventory.quantity}>
+                                                {inventory.inventoryName + "   "+ inventory.quantity}
                                             </option>
                                         ))}
                                     </select>
@@ -174,13 +230,13 @@ function DepartmentProps({ params }) {
                                             <h1>{count++}</h1>
                                         </th>
                                         <td class="px-6 py-4">
-                                            <h1 className='truncate w-56'>{stock.stockName}</h1>
+                                            <h1 className='truncate w-56'>{stock.inventoryName}</h1>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <h1 className='truncate w-56'>{stock.lastUpdated}</h1>
+                                            <h1 className='truncate w-56'>{stock.assignedBy}</h1>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <h1 className='truncate w-56'>{stock.totalStockLeft}</h1>
+                                            <h1 className='truncate w-56'>{stock.quantity}</h1>
                                         </td>
 
                                         <td class="px-6 py-4">
