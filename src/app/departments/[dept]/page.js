@@ -63,7 +63,7 @@ function DepartmentProps({ params }) {
 
     const [inventories, setInventories] = useState([])
     useEffect(() => {
-        getInventoryewfewnjf(params.dept).then((response) => {
+        getAllocatedInventoryService(params.dept).then((response) => {
             setInventories(response.data);
         }).catch(error => {
             console.error(error);
@@ -99,10 +99,6 @@ function DepartmentProps({ params }) {
 
         }
     }
-
-
-
-
 
 
     function showError(error) {
