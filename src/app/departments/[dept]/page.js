@@ -10,6 +10,8 @@ import Link from 'next/link';
 import { createAllocatedInventoryService, getAllocatedInventoryService, getAllocatedNotInventoryService } from '../../../../services/DepartmentService';
 import { getInventoryById, updateInventoryService } from '../../../../services/InventoryService';
 import { deleteAllocatedNotInventoryService, updateAllocatedNotInventoryService } from '../../../../services/InventoryAssignedToDeptService';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../../../../firebase';
 
 const poppins = Poppins({
     weight: ['100', '400', '500', '600', '700', '800'],
@@ -81,24 +83,6 @@ function DepartmentProps({ params }) {
     //     )
     // }, [])
 
-    const [inventories, setInventories] = useState([
-        // {
-        //     dept_name: 'CE',
-        //     inv_id: 1,
-        //     iat_id: 1,
-        //     quantity: 100,
-        //     inv_name: 'Marker'
-
-        // }
-    ])
-    // useEffect(() => {
-    //     getAllocatedInventoryService(params.dept).then((response) => {
-    //         setInventories(response.data);
-    //     }).catch(error => {
-    //         console.error(error);
-    //     }
-    //     )
-    // }, [])
 
 
     const temp = [{
@@ -193,6 +177,58 @@ function DepartmentProps({ params }) {
         deleteAllocatedNotInventoryService(stock.iat_id)
 
     }
+
+
+
+
+    const [allocationObj, setAllocationObj] = useState([])
+
+    // useEffect(() => {
+    //     if (!fetch) {
+    //         const fetchAllocationObj = async () => {
+    //             const querySnapshot = await getDocs(collection(db, "allocations"));
+    //             const fetchedAllocations = [];
+
+    //             querySnapshot.forEach((doc) => {
+    //                 fetchedAllocations.push({ id: doc.id, dept: doc.data().dept, quantity: doc.data().quantity, item: doc.data().item });
+    //             });
+
+    //             setAllocationObj(fetchedAllocations);
+    //             setFetch(true);
+    //         }
+
+    //         fetchAllocationObj();
+    //     }
+    // }, [fetch]);
+
+    useEffect(() => {
+        if (!fetch) {
+            async function findAllocations() {
+                const q = query(
+                    collection(db, "allocations"),
+                    where("dept", "==", params.dept),
+                );
+
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    alert("Not found");
+                } else {
+                    const fetchedAllocations = [];
+
+                    querySnapshot.forEach((doc) => {
+                        fetchedAllocations.push({ id: doc.id, dept: doc.data().dept, quantity: doc.data().quantity, item: doc.data().item });
+                    });
+
+                    setAllocationObj(fetchedAllocations);
+                    setFetch(true);
+                }
+            }
+
+            findAllocations()
+        }
+    }, [fetch])
+
 
     return (
         <>
@@ -353,10 +389,10 @@ function DepartmentProps({ params }) {
                                     Stock Name
                                 </th>
                                 <th scope="col" class="px-6 py-3">
-                                    Last Updated
+                                    Last Allocation
                                 </th>
                                 <th scope="col" class="px-6 py-3">
-                                    Total Stock Left
+                                    Total Stock Allocated
                                 </th>
                                 <th scope="col" class="px-6 py-3">
                                     Options

@@ -7,6 +7,8 @@ import Navbar from '../../../components/Navbar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { listDepartments } from '../../../services/DepartmentService';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../firebase';
 
 const raleway = Raleway({
     weight: ['400', '700'],
@@ -22,21 +24,29 @@ function page() {
 
     const router = useRouter();
     const [fetch, setFetch] = useState(false)
-    const [selectedTab, setSelectedTab] = useState(null)
-    const [fetchDept, setFetchDept] = useState([])
+
+
+
+    const [deptObj, setDeptObj] = useState([])
+
     useEffect(() => {
-        listDepartments().then((response) => {
-            setFetchDept(response.data);
-        }).catch(error => {
-            console.error(error);
+      if (!fetch) {
+        const fetchDeptObj = async () => {
+          const querySnapshot = await getDocs(collection(db, "departments"));
+          const fetchedDept = [];
+  
+          querySnapshot.forEach((doc) => {
+            fetchedDept.push({ id: doc.id, name: doc.data().name });
+          });
+  
+          setDeptObj(fetchedDept);
+          setFetch(true);
         }
-        )
-    }, [])
+  
+        fetchDeptObj();
+      }
+    }, [fetch]);
 
-    // const departmentList = fetchDept;
-
-
-    const departmentList = ['PPT', 'CE', 'IT', 'ECS', 'EXTC', 'AIDS', 'AIML', 'MECH', 'IOT', 'FE', 'PG'];
 
 
     return (
@@ -64,17 +74,17 @@ function page() {
                     </h1>
                 </div>
                 <div className="mt-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
-                    {departmentList.map((department) => (
+                    {deptObj.map((department) => (
                         <Link
-                            key={department}
+                            key={department.id}
                             href={{
-                                pathname: `/departments/${department}`,
-                                query: { departmentName: department },
+                                pathname: `/departments/${department.name}`,
+                                query: { departmentName: department.name },
                             }}
                             className="px-12 py-4 lg:px-0 lg:py-0 flex justify-center items-center lg:w-[200px] lg:h-[200px] shadow-2xl rounded-xl bg-[#60a5fa] hover:cursor-pointer transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300"
                         >
                             <h1 className={`${poppins.className} text-center lg:text-3xl text-2xl`}>
-                                {department}
+                                {department.name}
                             </h1>
                         </Link>
                     )

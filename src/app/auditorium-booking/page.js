@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from '../../../components/Navbar';
@@ -9,10 +9,13 @@ import { useRouter } from 'next/navigation';
 import { AuthContext } from "../../../contexts/AuthContext"
 import DatePicker from 'react-datepicker';
 import TimePicker from 'react-time-picker';
+import { Poppins } from 'next/font/google';
 
 
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-time-picker/dist/TimePicker.css';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../../../firebase';
 
 const raleway = Raleway({
     weight: ['400', '700'],
@@ -24,6 +27,10 @@ const inter = Inter({
     subsets: ['latin'],
 });
 
+const poppins = Poppins({
+    weight: ['100', '400', '500', '600', '700', '800'],
+    subsets: ['latin'],
+});
 
 function page() {
     const router = useRouter();
@@ -32,6 +39,29 @@ function page() {
     const [hours, setHours] = useState('');
     const [minutes, setMinutes] = useState('');
     const [period, setPeriod] = useState('AM');
+
+    const [fetch, setFetch] = useState(false)
+
+    const [bookingObj, setBookingObj] = useState([])
+  
+    useEffect(() => {
+      if (!fetch) {
+        const fetchBookingObj = async () => {
+          const querySnapshot = await getDocs(collection(db, "auditorium-bookings"));
+          const fetchedBookings = [];
+  
+          querySnapshot.forEach((doc) => {
+            fetchedBookings.push({ id: doc.id, date: doc.data().date, eventName: doc.data().eventName,time: doc.data().time, });
+          });
+  
+          setBookingObj(fetchedBookings);
+          setFetch(true);
+        }
+  
+        fetchBookingObj();
+      }
+    }, [fetch]);
+
 
     const handleHoursChange = (e) => {
         const value = parseInt(e.target.value, 10);
@@ -144,7 +174,7 @@ function page() {
                 pauseOnHover
                 theme="light"
             />
-            <div className='w-screen flex justify-center items-center'>
+            <div className='w-screen flex flex-col justify-center items-center'>
                 <div className='flex flex-col justify-center items-center p-20  my-28 rounded-lg space-y-5 border border-gray-200 shadow-lg '>
                     <h1 className={`${raleway.className} text-4xl font-bold mb-10`}>Auditorium Booking </h1>
                     <form onSubmit={handleSubmit} className='flex flex-col justify-center items-center space-y-10 '>
@@ -181,7 +211,7 @@ function page() {
                                     onChange={handlePeriodDropdown}
                                     className="block w-20 px-2 py-2 rounded-lg leading-tight border border-gray-700 focus:outline-none cursor-pointer"
                                 >
-                                    {['AM', 'PM'].map((period, index) => (
+                                    {periodList.map((period, index) => (
                                         <option key={index} value={period}>
                                             {period}
                                         </option>
@@ -190,7 +220,7 @@ function page() {
                             </div>
                         </div>
 
-                        <div disabled={!username || !password} type="submit" class="cursor-pointer relative inline-flex items-center px-12 py-3 overflow-hidden text-lg font-medium text-black border-2 border-black rounded-full hover:text-white group hover:bg-gray-50 w-72 mx-auto">
+                        <div onClick={handleSubmit} disabled={!username || !password} type="submit" class="cursor-pointer relative inline-flex items-center px-12 py-3 overflow-hidden text-lg font-medium text-black border-2 border-black rounded-full hover:text-white group hover:bg-gray-50 w-72 mx-auto">
                             <span class="absolute left-0 block w-full h-0 transition-all bg-black opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-400 ease"></span>
                             <span class="absolute right-0 flex items-center justify-start w-10 h-10 duration-300 transform translate-x-full group-hover:translate-x-0 ease">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -200,6 +230,42 @@ function page() {
 
                     </form>
                 </div>
+
+                <div class="w-screen px-44 py-10 flex flex-col ">
+                    <div class="flex justify-between items-center ">
+                        <h1 class={`${poppins.className} text-4xl font-bold `}>Existing Bookings</h1>
+                        <div class="flex justify-center items-center space-x-5">
+                            <div onClick={() => { setItemModal(true); setDepartmentModal(false) }} className='flex justify-center items-center px-5 py-2 bg-black rounded-lg text-white cursor-pointer'>
+                                <h1 class={`${poppins.className} text-md  `}>Create New Item</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                {/* List of boxes */}
+                <div class="grid grid-cols-4 gap-10 py-14 ">
+                    {bookingObj.map((booking) => (
+                        <div class="flex flex-col justify-center border border-gray-300 shadow-md min-w-[250px] h-[180px] px-5 rounded-lg ">
+                            <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>{booking.date}</h1>
+                            <h1 class={`${poppins.className} text-md font-medium  cursor-pointer `}>{booking.time}</h1>
+                            <h1 class={`${poppins.className} text-md font-medium  cursor-pointer `}>{booking.eventName}</h1>
+
+                            <div className='flex justify-end items-end space-x-2 '>
+
+                                <div class="mt-10 cursor-pointer " onClick={() => setEditItem(item)} >
+                                    <img src="/edit.png" alt="edit" className='w-7 h-7' />
+                                </div>
+                                <div class="mt-10 cursor-pointer " onClick={() => deleteItem(item)} >
+                                    <img src="/delete.png" alt="delete" className='w-7 h-7' />
+                                </div>
+                            </div>
+
+                        </div>
+                    ))}
+                </div>
+
+
             </div>
         </>
 
