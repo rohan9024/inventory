@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { createAllocatedInventoryService, getAllocatedInventoryService, getAllocatedNotInventoryService } from '../../../../services/DepartmentService';
 import { getInventoryById, updateInventoryService } from '../../../../services/InventoryService';
 import { deleteAllocatedNotInventoryService, updateAllocatedNotInventoryService } from '../../../../services/InventoryAssignedToDeptService';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, query, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { db } from '../../../../firebase';
 
 const poppins = Poppins({
@@ -22,13 +22,20 @@ const poppins = Poppins({
 function DepartmentProps({ params }) {
     const [timetableObj, setTimetableObj] = useState([]);
     const [editModal, setEditModal] = useState(false);
+    const [itemsList, setItemsList] = useState();
     const [deleteModal, setDeleteModal] = useState(false);
     const [tabTimetable, setTabTimetable] = useState([]);
-    const [fetch, setFetch] = useState(true);
+    const [fetch, setFetch] = useState(false);
     const [allocationModal, setAllocationModal] = useState(false);
-    const [inventoryName, setInventoryName] = useState("")
+
+    const [quantity, setQuantity] = useState(1);
+    const searchParams = useSearchParams()
+
+    const tabName = searchParams.get('tabName')
+    const router = useRouter();
     //const [deptId , setDeptId] = useState("")
     const [allocatedQuantity, setAllocatedQuantity] = useState("")
+    const [inventoryName, setInventoryName] = useState("")
 
     // hithe tujhe items ghaal
     const itemList = [
@@ -36,11 +43,6 @@ function DepartmentProps({ params }) {
         "Chalk",
     ]
     const [item, setItem] = useState(itemList[0]);
-    const [quantity, setQuantity] = useState(1);
-    const searchParams = useSearchParams()
-
-    const tabName = searchParams.get('tabName')
-    const router = useRouter();
 
     const departmentDictionary = {
         'PPT': 'Printing & Packaging Technology',
@@ -55,151 +57,137 @@ function DepartmentProps({ params }) {
     };
 
 
-
-    const [inventoriesList, setInventoriesList] = useState([
-        {
-            inventoryId: 1,
-            inventoryName: "Marker",
-            quantity: 300,
-        },
-        {
-            inventoryId: 1,
-            inventoryName: "Chalk",
-            quantity: 300,
-        },
-        {
-            inventoryId: 1,
-            inventoryName: "Duster",
-            quantity: 300,
-        },
-
-    ])
-    // useEffect(() => {
-    //     getAllocatedNotInventoryService(params.dept).then((response) => {
-    //         setInventoriesList(response.data);
-    //     }).catch(error => {
-    //         console.error(error);
-    //     }
-    //     )
-    // }, [])
-
-
-
-    const temp = [{
-        dept_name: 'CE',
-        inv_id: 1,
-        iat_id: 1,
-        quantity: 100,
-        inventoryName: 'Marker',
-        assignedBy: '29/06/2023',
-    }]
-
-
-    // const temp = inventories;
     const deptId = 1;
     const inventoryId = 3;
-    const [dropDownQuantity, setDropdownQuantity] = useState()
-
     let count = 1;
-    const handleItemDropdown = (event) => {
-        setInventoryName(event.target.value);
-        // setDropdownQuantity(event.target.quantity);
-    };
 
-    const createAllocatedInventory = { deptId, inventoryId, quantity };
-    async function itemAllocation() {
-        // console.log(params.dept, inventoryName, inventoryId, quantity)
-        // console.log(dropDownQuantity, quantity)
-        // alert(dropDownQuantity)
-        // alert(quantity)
+    async function updateAllocation(quantity, editModal) {
 
-        if (quantity > dropDownQuantity) {
-            alert("Quantity Exceeded");
+
+        if (quantity > editModal.quantity) {
+
+            let finalQuantity = quantity - editModal.quantity;
+
+            // 1.Minus from the inventory
+
+            const q = query(
+                collection(db, "inventory"),
+                where("item", "==", editModal.item)
+            );
+
+            const querySnapshot = await getDocs(collection(db, "inventory"));
+
+            if (querySnapshot.empty) {
+                alert("Not found Item in Inventory");
+            } else {
+
+                let itemId;
+                let existingInventoryStock;
+
+                querySnapshot.forEach((doc) => {
+                    itemId = doc.id;
+                    existingInventoryStock = doc.data().stock;
+                });
+
+                const docRef = doc(db, "inventory", itemId);
+                let assignedIventoryQuantity = existingInventoryStock - finalQuantity
+                try {
+                    await updateDoc(docRef, {
+                        stock: assignedIventoryQuantity,
+                    });
+
+                } catch (error) {
+                    alert('Unable to update');
+                    window.location.reload();
+                }
+
+
+                // 2.And update allocations with the "quantity"
+
+                const docRef2 = doc(db, "allocations", editModal.id);
+                try {
+                    await updateDoc(docRef2, {
+                        quantity: quantity,
+                    });
+
+                    alert('Updated the Quantity Successfully');
+                    window.location.reload();
+                } catch (error) {
+                    alert('Unable to update');
+                }
+
+            }
+
+        } else if (quantity == editModal.quantity) {
+            alert("The quantity is same. Check the value entered for updation");
         } else {
-            let quan = dropDownQuantity - parseInt(quantity);
-            alert(quan)
-            // createAllocatedInventoryService(createAllocatedInventory).then(response => {
-            //     console.log(response.data)
-            // });
-            // const updateInventory = { inventoryId, inventoryName, quantity };
-            // updateInventoryService(inventoryId, updateInventory).then(response => {
-            //     console.log(response.data)
-            // });
+            let finalQuantity = parseInt(editModal.quantity) - parseInt(quantity);
+
+            // 1.Add into the inventory
+
+            const q = query(
+                collection(db, "inventory"),
+                where("item", "==", editModal.item)
+            );
+
+            const querySnapshot = await getDocs(collection(db, "inventory"));
+
+            if (querySnapshot.empty) {
+                alert("Not found Item in Inventory");
+            } else {
+
+                let itemId;
+                let existingInventoryStock;
+
+                querySnapshot.forEach((doc) => {
+                    itemId = doc.id;
+                    existingInventoryStock = doc.data().stock;
+                });
+
+                const docRef = doc(db, "inventory", itemId);
+                let assignedInventoryQuantity = parseInt(existingInventoryStock) + finalQuantity
+
+                try {
+                    await updateDoc(docRef, {
+                        stock: assignedInventoryQuantity,
+                    });
+
+                } catch (error) {
+                    alert('Unable to update');
+                    window.location.reload();
+                }
+
+
+                // 2.And update allocations with the "quantity"
+
+                const docRef2 = doc(db, "allocations", editModal.id);
+                try {
+                    await updateDoc(docRef2, {
+                        quantity: quantity,
+                    });
+
+                    alert('Updated the Quantity Successfully');
+                    // window.location.reload();
+                } catch (error) {
+                    alert('Unable to update');
+                }
+            }
         }
-        setInventoryName("");
-        setQuantity("");
-        window.location.reload();
 
     }
-
-    function showError(error) {
-        // Create a new div element
-        var errorDiv = document.createElement('div');
-
-        // Set the error message content
-        errorDiv.textContent = error;
-
-        // Style the error message
-        errorDiv.style.color = 'red';
-        errorDiv.style.fontWeight = 'bold';
-
-        // Append the error message to the body or any other desired container
-        document.body.appendChild(errorDiv);
-
-        // Optionally, remove the error message after a certain time
-        setTimeout(function () {
-            document.body.removeChild(errorDiv);
-        }, 3000); // Remove after 3 seconds (adjust as needed)
-    }
-
-    const [newQuantity, setNewQuantity] = useState()
-    async function updateAllocation(quantity, existingQuantity, editModal) {
-
-        getInventoryById(editModal.inv_id).then(response => {
-            setNewQuantity(response.data.quantity);
-        });
-
-        if (quantity >= newQuantity) {
-            alert("Quantity Exceeding")
-        }
-        else {
-
-            let ans = parseInt(quantity) + existingQuantity;
-
-            updateAllocatedNotInventoryService(editModal.iat_id, { iat_id, ans })
-            let finalAns = newQuantity - parseInt(quantity)
-            updateInventory(editModal.inv_id, { inventoryId, finalAns })
-        }
-    }
-
 
     async function deleteAllocation(stock) {
         deleteAllocatedNotInventoryService(stock.iat_id)
 
     }
+    const [dropDownQuantity, setDropdownQuantity] = useState()
 
-
-
+    const handleItemDropdown = (event) => {
+        setInventoryName(event.target.value);
+        // setDropdownQuantity(event.target.quantity);
+    };
 
     const [allocationObj, setAllocationObj] = useState([])
-
-    // useEffect(() => {
-    //     if (!fetch) {
-    //         const fetchAllocationObj = async () => {
-    //             const querySnapshot = await getDocs(collection(db, "allocations"));
-    //             const fetchedAllocations = [];
-
-    //             querySnapshot.forEach((doc) => {
-    //                 fetchedAllocations.push({ id: doc.id, dept: doc.data().dept, quantity: doc.data().quantity, item: doc.data().item });
-    //             });
-
-    //             setAllocationObj(fetchedAllocations);
-    //             setFetch(true);
-    //         }
-
-    //         fetchAllocationObj();
-    //     }
-    // }, [fetch]);
 
     useEffect(() => {
         if (!fetch) {
@@ -209,7 +197,7 @@ function DepartmentProps({ params }) {
                     where("dept", "==", params.dept),
                 );
 
-                const querySnapshot = await getDocs(q);
+                const querySnapshot = await getDocs(collection(db, "allocations"));
 
                 if (querySnapshot.empty) {
                     alert("Not found");
@@ -217,7 +205,7 @@ function DepartmentProps({ params }) {
                     const fetchedAllocations = [];
 
                     querySnapshot.forEach((doc) => {
-                        fetchedAllocations.push({ id: doc.id, dept: doc.data().dept, quantity: doc.data().quantity, item: doc.data().item });
+                        fetchedAllocations.push({ id: doc.id, dept: doc.data().dept, quantity: doc.data().quantity, item: doc.data().item, date: doc.data().date });
                     });
 
                     setAllocationObj(fetchedAllocations);
@@ -228,6 +216,146 @@ function DepartmentProps({ params }) {
             findAllocations()
         }
     }, [fetch])
+
+
+    const [inventoryObj, setInventoryObj] = useState([])
+
+    useEffect(() => {
+        if (!fetch) {
+            async function fetchInventory() {
+
+                const querySnapshot = await getDocs(collection(db, "inventory"));
+
+                if (querySnapshot.empty) {
+                    alert("Not found Any Items in Inventory");
+                } else {
+                    const fetchedInventory = [];
+                    const fetchedItems = []
+                    querySnapshot.forEach((doc) => {
+                        fetchedInventory.push({ id: doc.id, item: doc.data().item, stock: doc.data().stock });
+                        fetchedItems.push(doc.data().item)
+                    });
+                    setItemsList(fetchedItems)
+                    setInventoryObj(fetchedInventory);
+                    setFetch(true);
+                }
+            }
+
+            fetchInventory()
+        }
+    }, [fetch])
+
+    async function itemAllocation() {
+        const selectedInventory = inventoryObj.find(inventory => inventory.item === inventoryName);
+
+
+        let currentDate = new Date();
+
+        let day = currentDate.getDate();
+        let month = currentDate.getMonth() + 1;
+        let year = currentDate.getFullYear();
+
+        if (day < 10) {
+            day = '0' + day;
+        }
+
+        if (month < 10) {
+            month = '0' + month;
+        }
+
+        let formattedDate = day + '/' + month + '/' + year;
+
+
+
+        if (parseInt(quantity) > selectedInventory.stock) {
+            alert("Please lower the quantity")
+        }
+        else {
+            let finalQuantity = quantity - selectedInventory.stock;
+
+            // 1. Minus from the inventory
+
+            const docRef = doc(db, "inventory", selectedInventory.id);
+            try {
+                await updateDoc(docRef, {
+                    stock: finalQuantity,
+                });
+
+            } catch (error) {
+                alert('Unable to update');
+                window.location.reload();
+            }
+
+
+            // 2.And update allocations with the "quantity"
+
+            if (selectedInventory.item && selectedInventory.stock) {
+                try {
+                    await addDoc(collection(db, 'allocations'), {
+                        item: selectedInventory.item,
+                        quantity: selectedInventory.stock,
+                        dept: params.dept,
+                        date: formattedDate
+                    });
+                    alert('Allocated Successfully');
+                    window.location.reload();
+                } catch (error) {
+                    alert('Something went wrong');
+                }
+            };
+
+        }
+
+    }
+
+    async function deleteItem(item) {
+        // let val = item.quantity
+
+
+        // 1.Minus from the inventory
+
+
+        const q = query(
+            collection(db, "inventory"),
+            where("item", "==", item.item)
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            alert("Not found Item in Inventory");
+        } else {
+
+            let itemId;
+            let existingInventoryStock;
+
+            querySnapshot.forEach((doc) => {
+                itemId = doc.id;
+                existingInventoryStock = doc.data().stock;
+            });
+
+            const docRef = doc(db, "inventory", itemId);
+
+            console.log(existingInventoryStock, item.quantity)
+            let assignedInventoryQuantity = parseInt(existingInventoryStock) - parseInt(item.quantity)
+            console.log(assignedInventoryQuantity)
+
+            try {
+                await updateDoc(docRef, {
+                    stock: assignedInventoryQuantity,
+                });
+
+            } catch (error) {
+                alert('Unable to update');
+            }
+        }
+
+        await deleteDoc(doc(db, "allocations", item.id));
+        alert("Deleted Successfully")
+        window.location.reload();
+
+
+    }
 
 
     return (
@@ -258,14 +386,12 @@ function DepartmentProps({ params }) {
                                         value={inventoryName}
                                         onChange={(event) => {
                                             handleItemDropdown(event);
-                                            const selectedInventory = inventoriesList.find(inventory => inventory.inventoryName === event.target.value);
-                                            setDropdownQuantity(selectedInventory.quantity);
                                         }}
                                         className="block w-96 py-2 px-5 leading-tight border border-gray-700 focus:outline-none cursor-pointer"
                                     >
-                                        {inventoriesList.map((inventory) => (
-                                            <option key={inventory.inventoryId} value={inventory.inventoryName}>
-                                                {inventory.inventoryName} - {inventory.quantity}
+                                        {inventoryObj.map((inventory) => (
+                                            <option key={inventory.id} value={inventory.item}>
+                                                {inventory.item} - {inventory.stock}
                                             </option>
                                         ))}
                                     </select>
@@ -310,7 +436,7 @@ function DepartmentProps({ params }) {
                                     </button>
                                 </div>
                                 <div className='flex flex-col space-y-5 mb-20  mx-12 my-5'>
-                                    <h1 className={`${poppins.className} text-lg font-medium`}>Enter Quantity for {editModal.inventoryName} ({editModal.quantity})</h1>
+                                    <h1 className={`${poppins.className} text-lg font-medium`}>Enter Quantity for {editModal.item}</h1>
 
                                     <input
                                         onChange={(e) => setQuantity(e.target.value)}
@@ -318,7 +444,7 @@ function DepartmentProps({ params }) {
                                         type="number"
                                         className="placeholder:text-gray-500  px-5 py-2 outline-none border border-gray-800 w-96"
                                     />
-                                    <div type="submit" onClick={() => updateAllocation(quantity, editModal.quantity, editModal)} class=" cursor-pointer w-96 relative inline-flex items-center px-12 py-2 overflow-hidden text-lg font-medium text-black border-2 border-black rounded-full hover:text-white group hover:bg-gray-600">
+                                    <div type="submit" onClick={() => updateAllocation(quantity, editModal)} class=" cursor-pointer w-96 relative inline-flex items-center px-12 py-2 overflow-hidden text-lg font-medium text-black border-2 border-black rounded-full hover:text-white group hover:bg-gray-600">
                                         <span class="absolute left-0 block w-full h-0 transition-all bg-black opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-400 ease"></span>
                                         <span class="absolute right-0 flex items-center justify-start w-10 h-10 duration-300 transform translate-x-full group-hover:translate-x-0 ease">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -351,12 +477,10 @@ function DepartmentProps({ params }) {
                                 </div>
                                 <div className='flex flex-col justify-center items-center  space-y-5 mb-20  mx-12 my-10'>
                                     <h1 className={`${poppins.className} text-lg font-medium`}>Are you sure?</h1>
-
                                     <div className='flex justify-start items-center space-x-10'>
-                                        <h1 onClick={() => deleteAllocation()} className='px-5 py-2 border bg-red-700 text-white cursor-pointer'>Yes</h1>
+                                        <h1 onClick={() => deleteItem(deleteModal)} className='px-5 py-2 border bg-red-700 text-white cursor-pointer'>Yes</h1>
                                         <h1 className='px-5 py-2 border bg-gray-700 text-white cursor-pointer'>No</h1>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
@@ -400,7 +524,7 @@ function DepartmentProps({ params }) {
                             </tr>
                         </thead>
                         {
-                            temp.map((stock) => (
+                            allocationObj.map((stock) => (
 
                                 <tbody>
                                     <tr class="bg-white border-b ">
@@ -408,10 +532,10 @@ function DepartmentProps({ params }) {
                                             <h1>{count++}</h1>
                                         </th>
                                         <td class="px-6 py-4">
-                                            <h1 className='truncate w-56'>{stock.inventoryName}</h1>
+                                            <h1 className='truncate w-56'>{stock.item}</h1>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <h1 className='truncate w-56'>{stock.assignedBy}</h1>
+                                            <h1 className='truncate w-56'>{stock.date}</h1>
                                         </td>
                                         <td class="px-6 py-4">
                                             <h1 className='truncate w-56'>{stock.quantity}</h1>
