@@ -7,9 +7,6 @@ import Navbar from '../../../../components/Navbar';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link';
-import { createAllocatedInventoryService, getAllocatedInventoryService, getAllocatedNotInventoryService } from '../../../../services/DepartmentService';
-import { getInventoryById, updateInventoryService } from '../../../../services/InventoryService';
-import { deleteAllocatedNotInventoryService, updateAllocatedNotInventoryService } from '../../../../services/InventoryAssignedToDeptService';
 import { addDoc, collection, deleteDoc, doc, getDocs, query, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { db } from '../../../../firebase';
 
@@ -184,7 +181,6 @@ function DepartmentProps({ params }) {
 
     const handleItemDropdown = (event) => {
         setInventoryName(event.target.value);
-        // setDropdownQuantity(event.target.quantity);
     };
 
     const [allocationObj, setAllocationObj] = useState([])

@@ -10,6 +10,7 @@ import { AuthContext } from "../../../contexts/AuthContext"
 import DatePicker from 'react-datepicker';
 import TimePicker from 'react-time-picker';
 import { Poppins } from 'next/font/google';
+import Select from 'react-select';
 
 
 import 'react-datepicker/dist/react-datepicker.css';
@@ -37,29 +38,28 @@ function page() {
     const [username, setUsername] = useState(null)
     const [password, setPassword] = useState(null)
     const [hours, setHours] = useState('');
-    const [minutes, setMinutes] = useState('');
     const [period, setPeriod] = useState('AM');
 
     const [fetch, setFetch] = useState(false)
 
     const [bookingObj, setBookingObj] = useState([])
-  
+
     useEffect(() => {
-      if (!fetch) {
-        const fetchBookingObj = async () => {
-          const querySnapshot = await getDocs(collection(db, "auditorium-bookings"));
-          const fetchedBookings = [];
-  
-          querySnapshot.forEach((doc) => {
-            fetchedBookings.push({ id: doc.id, date: doc.data().date, eventName: doc.data().eventName,time: doc.data().time, });
-          });
-  
-          setBookingObj(fetchedBookings);
-          setFetch(true);
+        if (!fetch) {
+            const fetchBookingObj = async () => {
+                const querySnapshot = await getDocs(collection(db, "auditorium-bookings"));
+                const fetchedBookings = [];
+
+                querySnapshot.forEach((doc) => {
+                    fetchedBookings.push({ id: doc.id, date: doc.data().date, eventName: doc.data().eventName, time: doc.data().time, });
+                });
+
+                setBookingObj(fetchedBookings);
+                setFetch(true);
+            }
+
+            fetchBookingObj();
         }
-  
-        fetchBookingObj();
-      }
     }, [fetch]);
 
 
@@ -81,84 +81,47 @@ function page() {
 
     const { admin, setAdmin } = useContext(AuthContext);
 
-    const notifySuccess = () => toast.success('Logged in successfully', {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-    });
-    const notifyError = () => toast.error('Invalid username or password', {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-    });
-    const notifyMissingCredentials = () => toast.error('Missing Credentials', {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-    });
-    const notifyMissingUsername = () => toast.error('Please Enter Username', {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-    });
-    const notifyMissingPassword = () => toast.error('Please Enter Password', {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-    });
-
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedTime, setSelectedTime] = useState('12:00');
 
-    const handlePeriodDropdown = (period) => {
-        setPeriod(period);
-    };
-
-    const handleTimeChange = (time) => {
-        setSelectedTime(time);
+    const handlePeriodDropdown = (event) => {
+        setPeriod(event.target.value);
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Selected Date:', selectedDate);
-        console.log('Selected Time:', selectedTime);
+        const formattedDate = `${selectedDate.getDate()}/${selectedDate.getMonth() + 1}/${selectedDate.getFullYear()}`;
+        const time = `${hours}:${minutes} ${period}`
+        console.log('Selected Date:', formattedDate);
+        console.log('Selected Time:', time);
     };
-    const minDate = new Date("11/22/2019 12:00 PM");
-    const maxDate = new Date("11/25/2019 5:00 PM");
+    const minDate = new Date("11/22/2019 8:00 AM");
+    const maxDate = new Date("11/25/2019 6:00 PM");
 
     const periodList = [
         "AM",
         "PM"
-
     ]
 
-
-
+    const hourOptions = [
+        { value: '01', label: '01' },
+        { value: '02', label: '02' },
+        { value: '03', label: '03' },
+        { value: '04', label: '04' },
+        { value: '05', label: '05' },
+        { value: '06', label: '06' },
+        { value: '07', label: '07' },
+        { value: '08', label: '08' },
+        { value: '09', label: '09' },
+        { value: '10', label: '10' },
+        { value: '11', label: '11' },
+        { value: '12', label: '12' },
+    ];
+    
+    const periodOptions = [
+        { value: 'AM', label: 'AM' },
+        { value: 'PM', label: 'PM' },
+    ];
     return (
         <>
             <Navbar />
@@ -188,25 +151,22 @@ function page() {
                         <div className='flex justify-center items-center space-x-10'>
                             <div className="flex flex-col justify-center items-center space-y-4">
                                 <h1 className="font-bold text-md">Hours</h1>
-                                <input
+                                {/* <input
                                     type="number"
                                     value={hours}
                                     onChange={handleHoursChange}
                                     className='outline-none border border-gray-500 bg-transparent w-14 px-2 py-2 rounded-lg'
-                                />
-                            </div>
-                            <div className="flex flex-col justify-center items-center space-y-4">
-                                <h1 className="font-bold text-md">Minutes</h1>
-                                <input
-                                    type="number"
-                                    value={minutes}
-                                    onChange={handleMinutesChange}
-                                    className='outline-none border border-gray-500 bg-transparent w-14 px-2 py-2 rounded-lg'
+                                /> */}
+
+                                <Select
+                                    defaultValue={hours}
+                                    onChange={setHours}
+                                    options={hourOptions}
                                 />
                             </div>
                             <div className="flex flex-col justify-start items-center space-y-4">
                                 <h1 className="text-md font-bold">Period</h1>
-                                <select
+                                {/* <select
                                     value={period}
                                     onChange={handlePeriodDropdown}
                                     className="block w-20 px-2 py-2 rounded-lg leading-tight border border-gray-700 focus:outline-none cursor-pointer"
@@ -216,7 +176,17 @@ function page() {
                                             {period}
                                         </option>
                                     ))}
-                                </select>
+                                </select> */}
+
+                                <Select
+                                    defaultValue={period}
+                                    onChange={setPeriod}
+                                    options={periodOptions}
+                                />
+
+
+
+
                             </div>
                         </div>
 
@@ -234,7 +204,7 @@ function page() {
                 <div class="w-screen px-44 py-10 flex flex-col ">
                     <div class="flex justify-between items-center ">
                         <h1 class={`${poppins.className} text-4xl font-bold `}>Existing Bookings</h1>
-             
+
                     </div>
                 </div>
 

@@ -6,7 +6,6 @@ import { Manrope, Poppins, Raleway } from 'next/font/google';
 import Navbar from '../../../components/Navbar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { listDepartments } from '../../../services/DepartmentService';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../../firebase';
 
