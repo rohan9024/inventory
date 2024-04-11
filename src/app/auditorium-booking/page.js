@@ -15,7 +15,7 @@ import Select from 'react-select';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import 'react-time-picker/dist/TimePicker.css';
-import { collection, getDocs } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs } from 'firebase/firestore';
 import { db } from '../../../firebase';
 
 const raleway = Raleway({
@@ -37,8 +37,9 @@ function page() {
     const router = useRouter();
     const [username, setUsername] = useState(null)
     const [password, setPassword] = useState(null)
-    const [hours, setHours] = useState('');
+    const [hours, setHours] = useState('01');
     const [period, setPeriod] = useState('AM');
+    const [eventName, setEventName] = useState('');
 
     const [fetch, setFetch] = useState(false)
 
@@ -88,12 +89,34 @@ function page() {
         setPeriod(event.target.value);
     };
 
+
+    async function addEvent(formattedDate, time, eventName) {
+        if (formattedDate && eventName && time) {
+            try {
+                await addDoc(collection(db, 'auditorium-bookings'), {
+                    date: formattedDate,
+                    time: time,
+                    eventName: eventName,
+                });
+                alert("Created Event Successfully")
+
+            } catch (error) {
+                alert('Something went wrong');
+            }
+
+            window.location.reload();
+        }
+    }
     const handleSubmit = (e) => {
         e.preventDefault();
         const formattedDate = `${selectedDate.getDate()}/${selectedDate.getMonth() + 1}/${selectedDate.getFullYear()}`;
-        const time = `${hours}:${minutes} ${period}`
+        const time = `${hours.label} ${period.label}`
         console.log('Selected Date:', formattedDate);
         console.log('Selected Time:', time);
+        console.log('Event Name:', eventName);
+        addEvent(formattedDate, time, eventName);
+
+
     };
     const minDate = new Date("11/22/2019 8:00 AM");
     const maxDate = new Date("11/25/2019 6:00 PM");
@@ -117,11 +140,17 @@ function page() {
         { value: '11', label: '11' },
         { value: '12', label: '12' },
     ];
-    
+
     const periodOptions = [
         { value: 'AM', label: 'AM' },
         { value: 'PM', label: 'PM' },
     ];
+
+    async function deleteBooking(booking) {
+        await deleteDoc(doc(db, "auditorium-bookings", booking.id));
+        alert("Deleted Booking Successfully")
+        window.location.reload();
+    }
     return (
         <>
             <Navbar />
@@ -140,7 +169,7 @@ function page() {
             <div className='w-screen flex flex-col justify-center items-center'>
                 <div className='flex flex-col justify-center items-center p-20  my-28 rounded-lg space-y-5 border border-gray-200 shadow-lg '>
                     <h1 className={`${raleway.className} text-4xl font-bold mb-10`}>Auditorium Booking </h1>
-                    <form onSubmit={handleSubmit} className='flex flex-col justify-center items-center space-y-10 '>
+                    <form onSubmit={handleSubmit} className='flex flex-col justify-start items-start space-y-10 '>
 
                         <div className="mb-4 flex justify-center items-center ">
                             <h1 className={`${inter.className} text-md font-bold mr-5`}>Select Date</h1>
@@ -148,16 +177,9 @@ function page() {
                             <DatePicker dateFormat="dd/MM/yyyy" selected={selectedDate} onChange={(date) => setSelectedDate(date)} />
                         </div>
 
-                        <div className='flex justify-center items-center space-x-10'>
-                            <div className="flex flex-col justify-center items-center space-y-4">
+                        <div className='flex justify-start items-start space-x-10'>
+                            <div className="flex flex-col justify-start items-start space-y-4">
                                 <h1 className="font-bold text-md">Hours</h1>
-                                {/* <input
-                                    type="number"
-                                    value={hours}
-                                    onChange={handleHoursChange}
-                                    className='outline-none border border-gray-500 bg-transparent w-14 px-2 py-2 rounded-lg'
-                                /> */}
-
                                 <Select
                                     defaultValue={hours}
                                     onChange={setHours}
@@ -166,29 +188,25 @@ function page() {
                             </div>
                             <div className="flex flex-col justify-start items-center space-y-4">
                                 <h1 className="text-md font-bold">Period</h1>
-                                {/* <select
-                                    value={period}
-                                    onChange={handlePeriodDropdown}
-                                    className="block w-20 px-2 py-2 rounded-lg leading-tight border border-gray-700 focus:outline-none cursor-pointer"
-                                >
-                                    {periodList.map((period, index) => (
-                                        <option key={index} value={period}>
-                                            {period}
-                                        </option>
-                                    ))}
-                                </select> */}
-
                                 <Select
                                     defaultValue={period}
                                     onChange={setPeriod}
                                     options={periodOptions}
                                 />
-
-
-
-
                             </div>
                         </div>
+
+                        <div className="mb-4 flex flex-col justify-start items-start space-y-4">
+                            <h1 className={`${inter.className} text-md font-bold `}>Enter Event Name</h1>
+                            <input
+                                onChange={(e) => setEventName(e.target.value)}
+                                value={eventName}
+                                type="text"
+                                placeholder="Tech Team Event"
+                                className="placeholder:text-gray-500  px-5 py-2 outline-none border border-gray-400 w-96 rounded-lg"
+                            />
+                        </div>
+
 
                         <div onClick={handleSubmit} type="submit" class="cursor-pointer relative inline-flex items-center px-12 py-3 overflow-hidden text-lg font-medium text-black border-2 border-black rounded-full hover:text-white group hover:bg-gray-50 w-72 mx-auto">
                             <span class="absolute left-0 block w-full h-0 transition-all bg-black opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-400 ease"></span>
@@ -219,10 +237,10 @@ function page() {
 
                             <div className='flex justify-end items-end space-x-2 '>
 
-                                <div class="mt-10 cursor-pointer " onClick={() => setEditItem(item)} >
+                                {/* <div class="mt-10 cursor-pointer " onClick={() => setEditItem(item)} >
                                     <img src="/edit.png" alt="edit" className='w-7 h-7' />
-                                </div>
-                                <div class="mt-10 cursor-pointer " onClick={() => deleteItem(item)} >
+                                </div> */}
+                                <div class="mt-10 cursor-pointer " onClick={() => deleteBooking(booking)} >
                                     <img src="/delete.png" alt="delete" className='w-7 h-7' />
                                 </div>
                             </div>
