@@ -7,6 +7,7 @@ import Navbar from '../../../components/Navbar';
 import { Inter, Raleway } from 'next/font/google';
 import { useRouter } from 'next/navigation';
 import { AuthContext } from "../../../contexts/AuthContext"
+import { updateDoc } from 'firebase/firestore';
 
 
 const raleway = Raleway({
@@ -80,46 +81,25 @@ function page() {
 
 
 
-
-    //   const signIn = async (e) => {
-    //     e.preventDefault();
-
-    //     if (username && password) {
-    //       const q = query(
-    //         collection(db, "admin"),
-    //         where("username", "==", username),
-    //         where("password", "==", password)
-    //       );
-
-    //       const querySnapshot = await getDocs(q);
-
-    //       if (querySnapshot.empty) {
-    //         notifyError();
-    //       } else {
-    //         notifySuccess();
-    //         setAdmin(true)
-    //         if (typeof window !== 'undefined') {
-    //           localStorage.setItem("isAdmin", "true") || '';
-    //         }
-
-    //         router.push("/admin-page");
-    //       }
-    //     }
-    //     else if (!username && password) {
-    //       notifyMissingUsername()
-    //     }
-    //     else if (username && !password) {
-    //       notifyMissingPassword()
-    //     }
-    //     else {
-    //       notifyMissingCredentials()
-    //     }
-    //   };
-
-
-
-
-
+    async function updateAdmin() {
+        const docRef = doc(db, "admin", "0ohAfcHwHts4JCIMGUqH");
+    
+        try {
+          await updateDoc(docRef, {
+            username: username,
+            password: password,
+          });
+    
+          alert('Updated the Credentials Successfully');
+    
+          setUsername('')
+          setPassword('')
+          window.location.reload();
+        } catch (error) {
+          alert('Unable to update');
+        }
+      }
+  
 
     return (
         <>

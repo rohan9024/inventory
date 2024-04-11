@@ -220,7 +220,7 @@ function page() {
                             </div>
                         </div>
 
-                        <div onClick={handleSubmit} disabled={!username || !password} type="submit" class="cursor-pointer relative inline-flex items-center px-12 py-3 overflow-hidden text-lg font-medium text-black border-2 border-black rounded-full hover:text-white group hover:bg-gray-50 w-72 mx-auto">
+                        <div onClick={handleSubmit} type="submit" class="cursor-pointer relative inline-flex items-center px-12 py-3 overflow-hidden text-lg font-medium text-black border-2 border-black rounded-full hover:text-white group hover:bg-gray-50 w-72 mx-auto">
                             <span class="absolute left-0 block w-full h-0 transition-all bg-black opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-400 ease"></span>
                             <span class="absolute right-0 flex items-center justify-start w-10 h-10 duration-300 transform translate-x-full group-hover:translate-x-0 ease">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -234,11 +234,7 @@ function page() {
                 <div class="w-screen px-44 py-10 flex flex-col ">
                     <div class="flex justify-between items-center ">
                         <h1 class={`${poppins.className} text-4xl font-bold `}>Existing Bookings</h1>
-                        <div class="flex justify-center items-center space-x-5">
-                            <div onClick={() => { setItemModal(true); setDepartmentModal(false) }} className='flex justify-center items-center px-5 py-2 bg-black rounded-lg text-white cursor-pointer'>
-                                <h1 class={`${poppins.className} text-md  `}>Create New Item</h1>
-                            </div>
-                        </div>
+             
                     </div>
                 </div>
 

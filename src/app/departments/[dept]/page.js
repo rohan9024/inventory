@@ -197,7 +197,7 @@ function DepartmentProps({ params }) {
                     where("dept", "==", params.dept),
                 );
 
-                const querySnapshot = await getDocs(collection(db, "allocations"));
+                const querySnapshot = await getDocs(q);
 
                 if (querySnapshot.empty) {
                     alert("Not found");
