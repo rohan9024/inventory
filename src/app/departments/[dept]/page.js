@@ -271,7 +271,7 @@ function DepartmentProps({ params }) {
             alert("Please lower the quantity")
         }
         else {
-            let finalQuantity = quantity - selectedInventory.stock;
+            let finalQuantity =  selectedInventory.stock - quantity;
 
             // 1. Minus from the inventory
 
@@ -336,8 +336,7 @@ function DepartmentProps({ params }) {
 
             const docRef = doc(db, "inventory", itemId);
 
-            console.log(existingInventoryStock, item.quantity)
-            let assignedInventoryQuantity = parseInt(existingInventoryStock) - parseInt(item.quantity)
+            let assignedInventoryQuantity = parseInt(existingInventoryStock) + parseInt(item.quantity)
             console.log(assignedInventoryQuantity)
 
             try {
@@ -479,7 +478,7 @@ function DepartmentProps({ params }) {
                                     <h1 className={`${poppins.className} text-lg font-medium`}>Are you sure?</h1>
                                     <div className='flex justify-start items-center space-x-10'>
                                         <h1 onClick={() => deleteItem(deleteModal)} className='px-5 py-2 border bg-red-700 text-white cursor-pointer'>Yes</h1>
-                                        <h1 className='px-5 py-2 border bg-gray-700 text-white cursor-pointer'>No</h1>
+                                        <h1 onClick={() => setDeleteModal(null)} className='px-5 py-2 border bg-gray-700 text-white cursor-pointer'>No</h1>
                                     </div>
                                 </div>
                             </div>
