@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { Poppins } from 'next/font/google';
 import { useRouter } from 'next/navigation';
 import Select from 'react-select'
+import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
 
 const poppins = Poppins({
   weight: ['100', '400', '500', '600', '700', '800'],
@@ -21,16 +23,51 @@ function LabMiddle() {
   const [quantity, setQuantity] = useState(1);
 
 
-  // useEffect(() => {
-  //   listDepartments().then((response) => {
-  //     setFetchDept(response.data);
-  //   }).catch(error => {
-  //     console.error(error);
-  //   }
-  //   )
-  // }, [])
 
-  // const departmentList = fetchDept;
+
+  const [inventoryObj, setInventoryObj] = useState([])
+
+  useEffect(() => {
+    if (!fetch) {
+      const fetchInventoryObj = async () => {
+        const querySnapshot = await getDocs(collection(db, "inventory"));
+        const fetchedInventory = [];
+
+        querySnapshot.forEach((doc) => {
+          fetchedInventory.push({ id: doc.id, item: doc.data().item, stock: doc.data().stock });
+        });
+
+        setInventoryObj(fetchedInventory);
+        setFetch(true);
+      }
+
+      fetchInventoryObj();
+    }
+  }, [fetch]);
+
+
+
+  const [deptObj, setDeptObj] = useState([])
+
+  useEffect(() => {
+    if (!fetch) {
+      const fetchDeptObj = async () => {
+        const querySnapshot = await getDocs(collection(db, "departments"));
+        const fetchedDept = [];
+
+        querySnapshot.forEach((doc) => {
+          fetchedDept.push({ id: doc.id, name: doc.data().name });
+        });
+
+        setDeptObj(fetchedDept);
+        setFetch(true);
+      }
+
+      fetchDeptObj();
+    }
+  }, [fetch]);
+
+
 
 
   const handleDepartmentDropdown = (event) => {
@@ -41,80 +78,27 @@ function LabMiddle() {
   };
 
 
-  const temp = [
-    {
-      dept_name: 'CE',
-      inv_id: 1,
-      iat_id: 1,
-      quantity: 100,
-      inventoryName: 'Marker',
-      assignedBy: '29/06/2023',
-    },
-    {
-      dept_name: 'CE',
-      inv_id: 2,
-      iat_id: 2,
-      quantity: 50,
-      inventoryName: 'Laptop',
-      assignedBy: '12/07/2023',
-    },
-    {
-      dept_name: 'CE',
-      inv_id: 3,
-      iat_id: 3,
-      quantity: 200,
-      inventoryName: 'Notebook',
-      assignedBy: '05/08/2023',
-    },
-    {
-      dept_name: 'CE',
-      inv_id: 4,
-      iat_id: 4,
-      quantity: 20,
-      inventoryName: 'Projector',
-      assignedBy: '20/09/2023',
-    },
-  ];
-
-
-
-  const itemsList = temp.map(elem => ({ value: elem.inventoryName, label: elem.inventoryName }));
-
-
-  const departmentList = ['PPT', 'CE', 'IT', 'ECS', 'EXTC', 'AIDS', 'AIML', 'MECH', 'IOT', 'FE', 'PG'];
-
-
   async function requestAdmin() {
+
+      if (item && quantity ) {
+        try {
+          await addDoc(collection(db, 'requests'), {
+            item: item,
+            quantity: quantity,
+            department: department,
+          });
+          window.location.reload();
+        } catch (error) {
+          alert('Something went wrong');
+        }
+      }
+
     alert("Submitted Successfully")
     window.location.reload();
 
-    console.log(quantities, department)
   }
 
 
-
-  const optionList = [
-    { value: "red", label: "Red" },
-    { value: "green", label: "Green" },
-    { value: "yellow", label: "Yellow" },
-    { value: "blue", label: "Blue" },
-    { value: "white", label: "White" }
-  ];
-
-
-  function handleSelect(data) {
-    setSelectedOptions(data);
-  }
-
-
-  const [quantities, setQuantities] = useState({});
-
-  const handleQuantityChange = (itemVal, quantity) => {
-    setQuantities(prevQuantities => ({
-      ...prevQuantities,
-      [itemVal]: quantity
-    }));
-  };
 
   return (
     <>
@@ -133,9 +117,9 @@ function LabMiddle() {
               onChange={handleDepartmentDropdown}
               className="block w-96 py-2 px-5 leading-tight border border-gray-700 focus:outline-none cursor-pointer"
             >
-              {departmentList.map((department, index) => (
-                <option key={index} value={department}>
-                  {department}
+              {deptObj.map((dept, index) => (
+                <option key={index} value={dept.name}>
+                  {dept.name}
                 </option>
               ))}
             </select>
@@ -143,32 +127,28 @@ function LabMiddle() {
 
             <h1 className={`${poppins.className} text-lg font-bold my-5`}>Select Item</h1>
 
+            <select
+              value={item}
+              onChange={handleItemDropdown}
+              className="block w-96 py-2 px-5 leading-tight border border-gray-700 focus:outline-none cursor-pointer"
+            >
+              {inventoryObj.map((item, index) => (
+                <option key={index} value={item.item} >
+                  {item.item}
+                </option>
+              ))}
+            </select>
 
-            <Select
-              options={itemsList}
-              placeholder="Select items"
-              value={selectedOptions}
-              onChange={handleSelect}
-              isSearchable={true}
-              isMulti
+
+
+            <h1 className={`${poppins.className}  text-lg font-bold my-5`}>Enter Quantity</h1>
+
+            <input
+              onChange={(e) => setQuantity(e.target.value)}
+              value={quantity}
+              type="number"
+              className="placeholder:text-gray-500  px-5 py-2 outline-none border border-gray-800 w-96"
             />
-
-            {selectedOptions.map((item) =>
-
-            (
-              <div key={item} className='flex justify-center items-center space-x-5 my-5'>
-                <h1>{item.value}</h1>
-
-                <input
-                  onChange={(e) => handleQuantityChange(item.value, e.target.value)}
-                  value={quantities[item.value] || ''}
-                  type="number"
-                  className='outline-none border border-gray-500 bg-transparent w-14 px-2 py-2 rounded-lg placeholder:Select-Quantity'
-                />
-              </div>
-            )
-
-            )}
 
 
             <div type="submit" onClick={requestAdmin} class="my-10 cursor-pointer w-96 relative inline-flex items-center px-12 py-2 overflow-hidden text-lg font-medium text-black border-2 border-black rounded-full hover:text-white group hover:bg-gray-600">

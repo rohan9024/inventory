@@ -8,6 +8,8 @@ import { Inter, Poppins, Raleway } from 'next/font/google';
 import { useRouter } from 'next/navigation';
 import { AuthContext } from "../../../contexts/AuthContext"
 import Link from "next/link"
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../../../firebase';
 
 const raleway = Raleway({
     weight: ['400', '700'],
@@ -29,7 +31,7 @@ function page() {
     const [username, setUsername] = useState(null)
     const [password, setPassword] = useState(null)
 
-    const { admin, setAdmin } = useContext(AuthContext);
+    const { lab, setLab } = useContext(AuthContext);
 
     const notifySuccess = () => toast.success('Logged in successfully', {
         position: "top-right",
@@ -83,42 +85,40 @@ function page() {
     });
 
 
+      const signIn = async (e) => {
+        e.preventDefault();
 
+        if (username && password) {
+          const q = query(
+            collection(db, "lab"),
+            where("username", "==", username),
+            where("password", "==", password)
+          );
 
-    //   const signIn = async (e) => {
-    //     e.preventDefault();
+          const querySnapshot = await getDocs(q);
 
-    //     if (username && password) {
-    //       const q = query(
-    //         collection(db, "admin"),
-    //         where("username", "==", username),
-    //         where("password", "==", password)
-    //       );
+          if (querySnapshot.empty) {
+            alert("Something went wrong");
+          } else {
+            alert("Logged in Successfully");
+            setLab(true)
+            if (typeof window !== 'undefined') {
+              localStorage.setItem("isLab", "true") || '';
+            }
 
-    //       const querySnapshot = await getDocs(q);
-
-    //       if (querySnapshot.empty) {
-    //         notifyError();
-    //       } else {
-    //         notifySuccess();
-    //         setAdmin(true)
-    //         if (typeof window !== 'undefined') {
-    //           localStorage.setItem("isAdmin", "true") || '';
-    //         }
-
-    //         router.push("/admin-page");
-    //       }
-    //     }
-    //     else if (!username && password) {
-    //       notifyMissingUsername()
-    //     }
-    //     else if (username && !password) {
-    //       notifyMissingPassword()
-    //     }
-    //     else {
-    //       notifyMissingCredentials()
-    //     }
-    //   };
+            router.push("/lab-panel");
+          }
+        }
+        else if (!username && password) {
+          notifyMissingUsername()
+        }
+        else if (username && !password) {
+          notifyMissingPassword()
+        }
+        else {
+          notifyMissingCredentials()
+        }
+      };
 
 
 
@@ -153,7 +153,7 @@ function page() {
                             <h1 className='font-normal text-sm text-right ml-56 text-gray-500'>Forgot your Password?</h1>
                         </div>
 
-                        <div disabled={!username || !password} type="submit" class="cursor-pointer relative inline-flex items-center px-12 py-3 overflow-hidden text-lg font-medium text-black border-2 border-black rounded-full hover:text-white group hover:bg-gray-50 w-96 mx-auto">
+                        <div onClick={signIn} disabled={!username || !password} type="submit" class="cursor-pointer relative inline-flex items-center px-12 py-3 overflow-hidden text-lg font-medium text-black border-2 border-black rounded-full hover:text-white group hover:bg-gray-50 w-96 mx-auto">
                             <span class="absolute left-0 block w-full h-0 transition-all bg-black opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-400 ease"></span>
                             <span class="absolute right-0 flex items-center justify-start w-10 h-10 duration-300 transform translate-x-full group-hover:translate-x-0 ease">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
