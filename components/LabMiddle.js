@@ -19,11 +19,8 @@ function LabMiddle() {
   const [department, setDepartment] = useState("CE")
   const [fetchDept, setFetchDept] = useState([])
   const [selectedOptions, setSelectedOptions] = useState([])
-  const [item, setItem] = useState("")
+  const [item, setItem] = useState("N/A")
   const [quantity, setQuantity] = useState(1);
-
-
-
 
   const [inventoryObj, setInventoryObj] = useState([])
 
@@ -31,7 +28,9 @@ function LabMiddle() {
     if (!fetch) {
       const fetchInventoryObj = async () => {
         const querySnapshot = await getDocs(collection(db, "inventory"));
-        const fetchedInventory = [];
+        const fetchedInventory = [{
+          id: 1, item: "N/A", stock: -1
+        }];
 
         querySnapshot.forEach((doc) => {
           fetchedInventory.push({ id: doc.id, item: doc.data().item, stock: doc.data().stock });
@@ -79,22 +78,22 @@ function LabMiddle() {
 
 
   async function requestAdmin() {
+    alert(item)
+    //   if (item && quantity ) {
+    //     try {
+    //       await addDoc(collection(db, 'requests'), {
+    //         item: item,
+    //         quantity: quantity,
+    //         department: department,
+    //       });
+    //       window.location.reload();
+    //     } catch (error) {
+    //       alert('Something went wrong');
+    //     }
+    //   }
 
-      if (item && quantity ) {
-        try {
-          await addDoc(collection(db, 'requests'), {
-            item: item,
-            quantity: quantity,
-            department: department,
-          });
-          window.location.reload();
-        } catch (error) {
-          alert('Something went wrong');
-        }
-      }
-
-    alert("Submitted Successfully")
-    window.location.reload();
+    // alert("Submitted Successfully")
+    // window.location.reload();
 
   }
 
