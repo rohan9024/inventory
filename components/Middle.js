@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { Poppins } from 'next/font/google';
 import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import CsvExport2 from '../CsvExport2';
+import CsvExport3 from '../CsvExport3';
 
 const poppins = Poppins({
   weight: ['100', '400', '500', '600', '700', '800'],
@@ -45,8 +47,27 @@ function Middle() {
       fetchInventoryObj();
     }
   }, [fetch]);
+  const [deptAllocationObj, setDeptAllocationObj] = useState([])
 
-  
+  useEffect(() => {
+    if (!fetch) {
+      const fetchAllocationObj = async () => {
+        const querySnapshot = await getDocs(collection(db, "allocations"));
+        const fetchedAllocations = [];
+
+        querySnapshot.forEach((doc) => {
+          fetchedAllocations.push({ id: doc.id, item: doc.data().item, quantity: doc.data().quantity,date: doc.data().date,dept: doc.data().dept });
+        });
+
+        setDeptAllocationObj(fetchedAllocations);
+        setFetch(true);
+      }
+
+      fetchAllocationObj();
+    }
+  }, [fetch]);
+
+
   const [deptObj, setDeptObj] = useState([])
 
   useEffect(() => {
@@ -86,7 +107,7 @@ function Middle() {
     }
   };
   const createDepartment = async () => {
-      if (departmentName) {
+    if (departmentName) {
       try {
         await addDoc(collection(db, 'departments'), {
           name: departmentName,
@@ -156,6 +177,8 @@ function Middle() {
       return;
     }
   }
+  const sortedWithoutId1 = inventoryObj.map(({ id, ...rest }) => rest);
+  const sortedWithoutId2 = deptAllocationObj.map(({ id, ...rest }) => rest);
 
 
   return (
@@ -360,7 +383,7 @@ function Middle() {
                     placeholder="CE"
                     className="placeholder:text-gray-500  px-5 py-2 outline-none border border-gray-800 w-96"
                   />
-              
+
                   <div type="submit" onClick={() => updateDept(editDept)} class=" cursor-pointer w-96 relative inline-flex items-center px-12 py-2 overflow-hidden text-lg font-medium text-black border-2 border-black rounded-full hover:text-white group hover:bg-gray-600">
                     <span class="absolute left-0 block w-full h-0 transition-all bg-black opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-400 ease"></span>
                     <span class="absolute right-0 flex items-center justify-start w-10 h-10 duration-300 transform translate-x-full group-hover:translate-x-0 ease">
@@ -374,7 +397,28 @@ function Middle() {
           </div>
         )
       }
+
+
+
       <div class="w-screen px-44 py-10 flex flex-col ">
+
+        <div class="flex justify-start items-center space-x-10">
+
+          {/* <div
+            className="mb-20 px-12 py-4 space-x-4 flex justify-center items-center  shadow-2xl rounded-xl bg-gray-800 hover:cursor-pointer transition ease-in-out hover:-translate-y-1 hover:scale-110 duration-300"
+          >
+            <h1 className={`${poppins.className} text-center text-lg font-semibold text-gray-200`}>
+              Download Inventory CSV
+            </h1>
+            <img src="/download.png" alt="download" className='w-7 h-7' />
+          </div> */}
+          <CsvExport2 data={sortedWithoutId1} fileName="inventory.csv" />
+          <CsvExport3 data={sortedWithoutId2} fileName="deptAllocation.csv" />
+
+
+
+        </div>
+
         <div class="flex justify-between items-center ">
           <h1 class={`${poppins.className} text-4xl font-bold `}>Inventory</h1>
           <div class="flex justify-center items-center space-x-5">

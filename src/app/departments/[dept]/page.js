@@ -559,7 +559,6 @@ function DepartmentProps({ params }) {
 
                 <div class="flex justify-end my-10">
                     <CsvExport data={sortedWithoutId} fileName={`${params.dept}.csv`} />
-
                 </div>
 
 
