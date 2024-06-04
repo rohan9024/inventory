@@ -352,6 +352,7 @@ function DepartmentProps({ params }) {
 
 
     }
+
     const sortedWithoutId = allocationObj.map(({ id, ...rest }) => rest);
 
     return (
@@ -557,8 +558,10 @@ function DepartmentProps({ params }) {
                 </div>
 
                 <div class="flex justify-end my-10">
-                    <CsvExport data={sortedWithoutId} fileName={`${params.dept}.csv`} class="" />
+                    <CsvExport data={sortedWithoutId} fileName={`${params.dept}.csv`} />
+
                 </div>
+
 
 
             </motion.div>
