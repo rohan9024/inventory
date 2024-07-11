@@ -78,30 +78,55 @@ function LabMiddle() {
 
 
   async function requestAdmin() {
-    alert(item)
-    //   if (item && quantity ) {
-    //     try {
-    //       await addDoc(collection(db, 'requests'), {
-    //         item: item,
-    //         quantity: quantity,
-    //         department: department,
-    //       });
-    //       window.location.reload();
-    //     } catch (error) {
-    //       alert('Something went wrong');
-    //     }
-    //   }
+    if (item && quantity) {
+      try {
+        await addDoc(collection(db, 'requests'), {
+          item: item,
+          quantity: quantity,
+          department: department,
+        });
+        window.location.reload();
+      } catch (error) {
+        alert('Something went wrong');
+      }
+    }
 
-    // alert("Submitted Successfully")
-    // window.location.reload();
+    alert("Submitted Successfully")
+    window.location.reload();
 
   }
 
+  const [requestsObj, setRequestsObj] = useState([])
+
+  useEffect(() => {
+    if (!fetch) {
+      const fetchRequestsObj = async () => {
+        const querySnapshot = await getDocs(collection(db, "requests"));
+        const fetchedRequests = [];
+
+        querySnapshot.forEach((doc) => {
+          fetchedRequests.push({ id: doc.id, department: doc.data().department, item: doc.data().item, quantity: doc.data().quantity, });
+        });
+
+        setRequestsObj(fetchedRequests);
+        setFetch(true);
+      }
+
+      fetchRequestsObj();
+    }
+  }, [fetch]);
+
+
+  async function deleteReq(request) {
+    await deleteDoc(doc(db, "requests", request.id));
+    alert("Rejected Request Successfully")
+    window.location.reload();
+  }
 
 
   return (
     <>
-      <div class="w-screen px-44 py-10 flex flex-col ">
+      <div class="w-screen px-44 py-28 flex flex-col ">
         <div class="flex flex-col justify-center items-center ">
 
           <h1 class={`${poppins.className} text-4xl font-bold `}>Request Admin</h1>
@@ -161,6 +186,33 @@ function LabMiddle() {
 
           </div>
 
+        </div>
+
+        <div class="w-screen px-44 py-10 flex flex-col ">
+          <div class="flex justify-between items-center ">
+            <h1 class={`${poppins.className} text-4xl font-bold `}>Pending Requests</h1>
+
+          </div>
+
+
+          {/* List of boxes */}
+          <div class="grid grid-cols-4 gap-10 py-14 ">
+            {requestsObj.map((request) => (
+              <div class="flex flex-col justify-center border border-gray-300 shadow-md min-w-[250px] h-[180px] px-5 rounded-lg ">
+                <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>{request.department}</h1>
+                <h1 class={`${poppins.className} text-md font-medium  cursor-pointer `}>{request.item}</h1>
+                <h1 class={`${poppins.className} text-md font-medium  cursor-pointer `}>{request.quantity}</h1>
+
+                <div className='flex justify-end items-end space-x-2 '>
+            
+                  <div class="mt-10 cursor-pointer " onClick={() => deleteReq(request)} >
+                    <img src="/delete.png" alt="delete" className='w-7 h-7' />
+                  </div>
+                </div>
+
+              </div>
+            ))}
+          </div>
         </div>
 
 
