@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Poppins } from 'next/font/google';
 import { useRouter } from 'next/navigation';
 import Select from 'react-select'
-import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { addDoc, collection, getDocs, where } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const poppins = Poppins({
@@ -23,7 +23,7 @@ function LabMiddle() {
   const [quantity, setQuantity] = useState(1);
 
   const [inventoryObj, setInventoryObj] = useState([])
-
+  var count = 1;
   useEffect(() => {
     if (!fetch) {
       const fetchInventoryObj = async () => {
@@ -43,6 +43,34 @@ function LabMiddle() {
       fetchInventoryObj();
     }
   }, [fetch]);
+
+
+  const [allocationObj, setAllocationObj] = useState([])
+
+  useEffect(() => {
+    if (!fetch) {
+      async function findAllocations() {
+
+
+        const querySnapshot = await getDocs(collection(db, "allocations"));
+
+        if (querySnapshot.empty) {
+          alert("Not found");
+        } else {
+          const fetchedAllocations = [];
+
+          querySnapshot.forEach((doc) => {
+            fetchedAllocations.push({ id: doc.id, dept: doc.data().dept, quantity: doc.data().quantity, item: doc.data().item, date: doc.data().date });
+          });
+
+          setAllocationObj(fetchedAllocations);
+          setFetch(true);
+        }
+      }
+
+      findAllocations()
+    }
+  }, [fetch])
 
 
 
@@ -188,31 +216,90 @@ function LabMiddle() {
 
         </div>
 
-        <div class="w-screen px-44 py-10 flex flex-col ">
+        <div class="w-screen py-10 flex flex-col ">
           <div class="flex justify-between items-center ">
             <h1 class={`${poppins.className} text-4xl font-bold `}>Pending Requests</h1>
-
           </div>
 
 
           {/* List of boxes */}
-          <div class="grid grid-cols-4 gap-10 py-14 ">
-            {requestsObj.map((request) => (
-              <div class="flex flex-col justify-center border border-gray-300 shadow-md min-w-[250px] h-[180px] px-5 rounded-lg ">
-                <h1 class={`${poppins.className} text-xl font-bold cursor-pointer`}>{request.department}</h1>
-                <h1 class={`${poppins.className} text-md font-medium  cursor-pointer `}>{request.item}</h1>
-                <h1 class={`${poppins.className} text-md font-medium  cursor-pointer `}>{request.quantity}</h1>
-
-                <div className='flex justify-end items-end space-x-2 '>
-            
-                  <div class="mt-10 cursor-pointer " onClick={() => deleteReq(request)} >
-                    <img src="/delete.png" alt="delete" className='w-7 h-7' />
+          <div className="grid grid-cols-4 gap-10 py-14">
+            {requestsObj.length === 0 ? (
+              <div className="">
+                <h1 className={`${poppins.className} text-md font-medium text-gray-600`}>Not Found Pending Requests</h1>
+              </div>
+            ) : (
+              requestsObj.map((request) => (
+                <div className="flex flex-col justify-center border border-gray-300 shadow-md min-w-[250px] h-[180px] px-5 rounded-lg" key={request.id}>
+                  <h1 className={`${poppins.className} text-xl font-bold cursor-pointer`}>{request.department}</h1>
+                  <h1 className={`${poppins.className} text-md font-medium cursor-pointer`}>{request.item}</h1>
+                  <h1 className={`${poppins.className} text-md font-medium cursor-pointer`}>{request.quantity}</h1>
+                  <div className="flex justify-end items-end space-x-2">
+                    <div className="mt-10 cursor-pointer" onClick={() => deleteReq(request)}>
+                      <img src="/delete.png" alt="delete" className="w-7 h-7" />
+                    </div>
                   </div>
                 </div>
-
-              </div>
-            ))}
+              ))
+            )}
           </div>
+
+        </div>
+
+        <div class="flex justify-between items-center ">
+          <h1 class={`${poppins.className} text-4xl font-bold `}>Approved Allocations</h1>
+
+        </div>
+
+        <div class={`${poppins.className} relative overflow-x-auto mt-10`}>
+          <table class="w-full text-sm text-left text-gray-500 ">
+            <thead class="text-md text-gray-700  bg-gray-50 border-b  ">
+              <tr>
+                <th scope="col" class="px-6 py-3">
+                  Sr. No.
+                </th>
+                <th scope="col" class="px-6 py-3">
+                  Stock Name
+                </th>
+
+                <th scope="col" class="px-6 py-3">
+                  Last Allocation
+                </th>
+                <th scope="col" class="px-6 py-3">
+                  Total Stock Allocated
+                </th>
+                <th scope="col" class="px-6 py-3">
+                  Department
+                </th>
+
+              </tr>
+            </thead>
+            {
+              allocationObj.map((stock) => (
+
+                <tbody>
+                  <tr class="bg-white border-b ">
+                    <th scope="row" class="w-24 px-6 py-4 text-center font-medium text-gray-900 whitespace-nowrap ">
+                      <h1>{count++}</h1>
+                    </th>
+                    <td class="px-6 py-4">
+                      <h1 className='truncate w-56'>{stock.item}</h1>
+                    </td>
+
+                    <td class="px-6 py-4">
+                      <h1 className='truncate w-56'>{stock.date}</h1>
+                    </td>
+                    <td class="px-6 py-4">
+                      <h1 className='truncate w-56'>{stock.quantity}</h1>
+                    </td>
+                    <td class="px-6 py-4">
+                      <h1 className='truncate w-56'>{stock.dept}</h1>
+                    </td>
+                  </tr>
+                </tbody>
+              ))
+            }
+          </table>
         </div>
 
 
