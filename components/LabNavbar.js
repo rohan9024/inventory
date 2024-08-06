@@ -34,6 +34,7 @@ function LabNavbar() {
                         router.push('/lab-login');
                         if (typeof window !== 'undefined') {
                             localStorage.setItem("isLab", "false") || ''
+                            localStorage.removeItem("department")
                         }
                     }}>
                         <div class={`${poppins.className} text-sm font-medium cursor-pointer hover:ease-in transition  hover:text-gray-400`}>
