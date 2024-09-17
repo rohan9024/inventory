@@ -10,6 +10,7 @@ import { AuthContext } from "../../../contexts/AuthContext";
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDocs,
   updateDoc,
@@ -144,6 +145,12 @@ function page() {
     }
   }
 
+  const sortedCreds = credsObj.slice().sort((a, b) => {
+    if (a.department < b.department) return -1;
+    if (a.department > b.department) return 1;
+    return 0;
+  });
+
   return (
     <>
       <Navbar />
@@ -240,11 +247,13 @@ function page() {
               onChange={handleDepartmentDropdown}
               className="block w-96 py-2 px-5 leading-tight border border-gray-700 focus:outline-none cursor-pointer"
             >
-              {departmentsObj.map((dept, index) => (
-                <option key={index} value={dept.name}>
-                  {dept.name}
-                </option>
-              ))}
+              {departmentsObj
+                .sort((a, b) => a.name.localeCompare(b.name)) // Sort departments alphabetically
+                .map((dept, index) => (
+                  <option key={index} value={dept.name}>
+                    {dept.name}
+                  </option>
+                ))}
             </select>
 
             <div
@@ -276,11 +285,12 @@ function page() {
         </div>
       </div>
 
-  
       <div className="flex flex-col justify-start items-center my-20">
-      <h1 className={`${raleway.className} text-4xl text-left font-bold mt-10`}>
-            Lab Profiles{" "}
-          </h1>
+        <h1
+          className={`${raleway.className} text-4xl text-left font-bold mt-10`}
+        >
+          Lab Profiles{" "}
+        </h1>
         <div class={`${poppins.className} relative overflow-x-auto my-10`}>
           <table class="w-full text-sm text-left text-gray-500 ">
             <thead class="text-md text-gray-700  bg-gray-50 border-b  ">
@@ -302,35 +312,35 @@ function page() {
                 </th>
               </tr>
             </thead>
-            {credsObj.map((cred) => (
-              <tbody>
-                <tr class="bg-white border-b ">
+            {sortedCreds.map((cred, index) => (
+              <tbody key={cred.username + index}>
+                <tr className="bg-white border-b">
                   <th
                     scope="row"
-                    class="w-24 px-6 py-4 text-center font-medium text-gray-900 whitespace-nowrap "
+                    className="w-24 px-6 py-4 text-center font-medium text-gray-900 whitespace-nowrap"
                   >
-                    <h1>{count++}</h1>
+                    <h1>{index + 1}</h1>
                   </th>
-                  <td class="px-6 py-4">
+                  <td className="px-6 py-4">
                     <h1 className="truncate w-56">{cred.username}</h1>
                   </td>
-                  <td class="px-6 py-4">
+                  <td className="px-6 py-4">
                     <h1 className="truncate w-56">{cred.password}</h1>
                   </td>
-                  <td class="px-6 py-4">
+                  <td className="px-6 py-4">
                     <h1 className="truncate w-56">{cred.department}</h1>
                   </td>
 
-                  <td class="px-6 py-4">
+                  <td className="px-6 py-4">
                     <div className="flex justify-center items-center w-[150px] space-x-4">
                       <div
                         onClick={() => deleteCred(cred)}
-                        className=" w-32 flex justify-around items-center cursor-pointer"
+                        className="w-32 flex justify-around items-center cursor-pointer"
                       >
                         <img
                           src="/delete.png"
                           alt="remove"
-                          className="w-5 h-5 "
+                          className="w-5 h-5"
                         />
                         <h1>Delete Record</h1>
                       </div>

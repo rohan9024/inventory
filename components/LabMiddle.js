@@ -28,7 +28,6 @@ function LabMiddle() {
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    // Retrieve the department from localStorage
     const storedDept = localStorage.getItem("department");
     if (storedDept) {
       setSelectedDept(storedDept);
@@ -152,22 +151,6 @@ function LabMiddle() {
 
           <div className="flex flex-col justify-start items-start my-14 ">
             {/* <h1 className={`${poppins.className} text-lg font-bold my-5`}>
-              Select Department
-            </h1>
-
-            <select
-              value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              className="block w-96 py-2 px-5 leading-tight border border-gray-700 focus:outline-none cursor-pointer"
-            >
-              {deptObj.map((dept) => (
-                <option key={dept.id} value={dept.name}>
-                  {dept.name}
-                </option>
-              ))}
-            </select> */}
-
-            <h1 className={`${poppins.className} text-lg font-bold my-5`}>
               Select Item
             </h1>
 
@@ -181,6 +164,25 @@ function LabMiddle() {
                   {invItem.item}
                 </option>
               ))}
+            </select> */}
+
+            <h1 className={`${poppins.className} text-lg font-bold my-5`}>
+              Select Item
+            </h1>
+
+            <select
+              value={item}
+              onChange={(e) => setItem(e.target.value)}
+              className="block w-96 py-2 px-5 leading-tight border border-gray-700 focus:outline-none cursor-pointer"
+            >
+              {inventoryObj
+                .slice() // Create a shallow copy of the array to avoid mutating the original
+                .sort((a, b) => a.item.localeCompare(b.item)) // Sort alphabetically
+                .map((invItem) => (
+                  <option key={invItem.id} value={invItem.item}>
+                    {invItem.item}
+                  </option>
+                ))}
             </select>
 
             <h1 className={`${poppins.className} text-lg font-bold my-5`}>
